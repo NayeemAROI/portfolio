@@ -5,14 +5,14 @@ import { ComposeCTA } from "@/components/ComposeCTA";
 export const metadata: Metadata = {
   title: "Contact",
   description:
-    "Get a plain-language deliverability diagnosis. Responds in 0-4 hours, GMT+6.",
+    "Send the symptoms, get a plain-language deliverability diagnosis and a plan.",
 };
 
 const checklist = [
   "How many domains and inboxes you send from",
   "Current stack: ESP, warmup tool, CRM",
   "What changed right before things broke",
-  "Where emails land now — spam, promotions, or nowhere",
+  "Where emails land now: spam, promotions, or nowhere",
 ];
 
 export default function ContactPage() {

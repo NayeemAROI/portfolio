@@ -9,14 +9,20 @@ import { Reveal } from "@/components/Reveal";
 export const metadata: Metadata = {
   title: "Work",
   description:
-    "Every completed Upwork contract: 100% Job Success Score and a 5.0 rating across all completed jobs.",
+    "Every completed Upwork contract: 100% Job Success Score and a 5.0 rating on all completed jobs.",
 };
 
 const headlineStats = [
   { value: site.stats.jss, label: "Job Success Score" },
   { value: site.stats.rating, label: "average rating" },
-  { value: `${site.stats.completedJobs}/${site.stats.completedJobs}`, label: "five-star contracts" },
-  { value: site.stats.totalJobs, label: "contracts total" },
+  {
+    value: `${site.stats.completedJobs}/${site.stats.completedJobs}`,
+    label: "five-star completions",
+  },
+  {
+    value: site.stats.inProgress,
+    label: "contracts in progress",
+  },
 ];
 
 export default function WorkPage() {

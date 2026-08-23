@@ -8,7 +8,7 @@ import { Reveal } from "@/components/Reveal";
 export const metadata: Metadata = {
   title: "About",
   description:
-    "Email deliverability specialist working from Gazipur, Bangladesh. Nine years across web infrastructure, lead generation, and cold email systems.",
+    "Email deliverability specialist covering authentication, outbound infrastructure, and the web stack underneath.",
 };
 
 const dailyDrivers = [
@@ -23,6 +23,9 @@ const dailyDrivers = [
   "Cloudflare",
   "MXToolbox",
   "Postmaster Tools",
+  "GoDaddy",
+  "Namecheap",
+  "cPanel",
   "WordPress",
   "WooCommerce",
   "Elementor",
@@ -62,7 +65,7 @@ export default function AboutPage() {
             </li>
             <li className="inline-flex items-center gap-2 rounded-full border border-line bg-card px-3.5 py-1.5">
               <Clock className="size-4 text-delivered" />
-              {site.timezone} · responds in 0–4h
+              {site.timezone}
             </li>
             <li className="inline-flex items-center gap-2 rounded-full border border-line bg-card px-3.5 py-1.5">
               <Languages className="size-4 text-delivered" />
