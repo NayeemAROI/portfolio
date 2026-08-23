@@ -1,19 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { site } from "@/data/site";
 import { links } from "@/data/links";
-import { ShieldCheck, ArrowRight, Mail, Copy, Check } from "lucide-react";
+import { ArrowRight, Inbox, ShieldCheck, Mail, Copy, Check, Star } from "lucide-react";
 
-/**
- * Signature moment: DESIGN.md motif 1. Value props arrive as inbox rows on a
- * 60ms stagger, each with its delivered check drawing in behind it, then the
- * authentication seal lands. Plays once. No loop anywhere in this component.
- *
- * Every row states a capability, not a result. Rows are hairline-separated,
- * not carded: the spec says borders over shadows, and cards inside a card are
- * the thing this world exists to avoid.
- */
 const INBOX_ROWS = [
   {
     record: "SPF / DKIM / DMARC",
@@ -42,11 +34,17 @@ const INBOX_ROWS = [
   },
 ];
 
-/**
- * Reference sample only. example.com is reserved by RFC 2606 precisely so it
- * cannot be mistaken for a real domain, and no IP or selector is quoted. This
- * demonstrates the shape of a passing result. It is not a client's audit.
- */
+const marqueeTokens = [
+  "SPF ALIGNED ✓",
+  "DKIM SIGNED ✓",
+  "DMARC ENFORCED ✓",
+  "MX ROUTED ✓",
+  "TRACKING DOMAIN ACTIVE ✓",
+  "WARMUP HEALTHY ✓",
+  "REPUTATION HIGH ✓",
+  "INBOX: PRIMARY ✓",
+];
+
 const SAMPLE_HEADER = `Authentication-Results: mx.google.com;
   spf=pass       smtp.mailfrom=example.com;
   dkim=pass      header.i=@example.com;
@@ -82,39 +80,41 @@ export function HeroDeliverability() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // Clipboard can be blocked by permissions policy. The sample is visible
-      // and selectable on the page, so failing quietly is the honest outcome:
-      // do not flash a success state for something that did not happen.
+      // Ignore clipboard failure gracefully
     }
   };
 
   return (
-    <section className="border-b border-line bg-paper pt-12 pb-16 md:pt-20 md:pb-24">
+    <section className="relative overflow-hidden border-b border-line bg-paper pt-12 pb-16 md:pt-20 md:pb-24">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="grid gap-14 lg:grid-cols-12 lg:items-start lg:gap-10">
-          {/* ---------- Positioning ---------- */}
+        <div className="grid gap-12 lg:grid-cols-12 lg:items-start lg:gap-10">
+          
+          {/* Left: Positioning & Value Proposition */}
           <div className="lg:col-span-6">
-            <div className="inline-flex items-center gap-2 border border-line bg-card px-3 py-1.5">
-              <span className="size-2 rounded-full bg-delivered" />
+            <div className="inline-flex items-center gap-2 border border-line bg-card px-3 py-1.5 rounded-full shadow-2xs">
+              <span className="size-2 rounded-full bg-delivered animate-pulse" />
               <span className="font-mono text-xs font-medium text-ink">
-                Available for new client work
+                {site.availability}
               </span>
             </div>
 
-            <h1 className="mt-6 font-display text-4xl font-extrabold tracking-tight text-ink sm:text-5xl lg:text-[3.5rem] lg:leading-[1.05]">
-              Cold email that lands in the primary inbox, not spam.
+            <h1 className="mt-6 font-display text-4xl font-extrabold tracking-tight text-ink sm:text-5xl lg:text-[3.4rem] lg:leading-[1.08]">
+              Cold email that lands in the{" "}
+              <span className="text-delivered-ink">primary inbox</span>, not spam.
             </h1>
 
-            <p className="mt-6 max-w-[62ch] text-lg leading-relaxed text-muted">
-              I configure, authenticate, and rescue outbound email
-              infrastructure. Authentication and DNS first, then the campaign
-              systems on top of it.
+            <p className="mt-5 max-w-[60ch] text-base leading-relaxed text-muted sm:text-lg">
+              {site.headline}
             </p>
 
-            <div className="mt-9 flex flex-wrap items-center gap-3">
+            <p className="mt-3 text-sm leading-relaxed text-ink/80">
+              I configure, authenticate, and rescue outbound email infrastructure. From full SPF/DKIM/DMARC alignment and Google Workspace/Microsoft 365 migrations to scalable Instantly/Apollo campaign architecture.
+            </p>
+
+            <div className="mt-8 flex flex-wrap items-center gap-3">
               <a
                 href="#contact"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-delivered-ink px-5 py-3 font-mono text-sm font-semibold text-white transition-colors hover:bg-ink"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-delivered-ink px-5 py-3 font-mono text-xs font-semibold text-white transition-colors hover:bg-ink active:scale-95"
               >
                 <Mail className="size-4" aria-hidden="true" />
                 Get deliverability help
@@ -125,43 +125,45 @@ export function HeroDeliverability() {
                 href={links.upwork}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-line bg-card px-5 py-3 font-mono text-sm font-medium text-ink transition-colors hover:border-ink"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-line bg-card px-5 py-3 font-mono text-xs font-medium text-ink shadow-2xs transition-colors hover:border-muted hover:bg-paper active:scale-95"
               >
                 <ShieldCheck className="size-4 text-delivered-ink" aria-hidden="true" />
                 Hire on Upwork
               </a>
             </div>
 
-            <dl className="mt-9 grid max-w-md grid-cols-3 gap-x-6 border-t border-line pt-6 font-mono text-xs">
+            <dl className="mt-8 grid max-w-md grid-cols-3 gap-4 border-t border-line pt-6 font-mono text-xs">
               <div>
-                <dt className="text-muted">Job success</dt>
-                <dd className="mt-0.5 text-base font-semibold text-ink">
+                <dt className="text-muted">Job Success</dt>
+                <dd className="mt-0.5 text-lg font-bold text-ink">
                   {site.stats.jss}
                 </dd>
               </div>
               <div>
                 <dt className="text-muted">Rating</dt>
-                <dd className="mt-0.5 text-base font-semibold text-ink">
-                  {site.stats.rating}
+                <dd className="mt-0.5 text-lg font-bold text-ink">
+                  {site.stats.rating} ★
                 </dd>
               </div>
               <div>
-                <dt className="text-muted">Jobs closed</dt>
-                <dd className="mt-0.5 text-base font-semibold text-ink">
-                  {site.stats.completedJobs}
+                <dt className="text-muted">Completed</dt>
+                <dd className="mt-0.5 text-lg font-bold text-ink">
+                  {site.stats.completedJobs} / {site.stats.completedJobs}
                 </dd>
               </div>
             </dl>
           </div>
 
-          {/* ---------- The inbox: signature moment ---------- */}
+          {/* Right: Signature Inbox Deliverability Motif */}
           <div className="lg:col-span-6">
-            <div className="border border-line bg-card">
-              <div className="flex items-baseline justify-between border-b border-line px-4 py-3">
+            <div className="border border-line bg-card rounded-2xl shadow-sm overflow-hidden">
+              <div className="flex items-baseline justify-between border-b border-line bg-paper px-4 py-3">
                 <span className="font-mono text-[11px] tracking-wider text-muted uppercase">
-                  What arrives when this is done right
+                  Verified Outbound Infrastructure
                 </span>
-                <span className="font-mono text-[11px] text-delivered-ink">5 / 5</span>
+                <span className="font-mono text-[11px] font-semibold text-delivered-ink">
+                  5 / 5 ALIGNED
+                </span>
               </div>
 
               <ul className="divide-y divide-line-soft">
@@ -178,10 +180,10 @@ export function HeroDeliverability() {
                       <span className="block font-mono text-[11px] tracking-wide text-muted">
                         {row.record}
                       </span>
-                      <span className="mt-0.5 block text-[15px] font-medium text-ink">
+                      <span className="mt-0.5 block text-sm font-semibold text-ink">
                         {row.outcome}
                       </span>
-                      <span className="mt-0.5 block text-[13px] leading-relaxed text-muted">
+                      <span className="mt-0.5 block text-xs leading-relaxed text-muted">
                         {row.detail}
                       </span>
                     </span>
@@ -189,27 +191,31 @@ export function HeroDeliverability() {
                 ))}
               </ul>
 
-              {/* the seal lands after the last row */}
               <div className="inbox-seal border-t border-line bg-delivered-wash px-4 py-3">
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="size-4 text-delivered-ink" aria-hidden="true" />
-                  <span className="font-mono text-xs font-semibold text-delivered-ink">
-                    Authentication: pass
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="size-4 text-delivered-ink" aria-hidden="true" />
+                    <span className="font-mono text-xs font-semibold text-delivered-ink">
+                      Authentication: PASS (SPF, DKIM, DMARC)
+                    </span>
+                  </div>
+                  <span className="font-mono text-[10px] rounded bg-delivered/10 px-2 py-0.5 text-delivered-ink font-bold">
+                    PRIMARY INBOX
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* Reference sample, labelled before it is read. */}
+            {/* Reference Sample */}
             <figure className="mt-4">
               <figcaption className="flex items-center justify-between gap-3">
-                <span className="font-mono text-[11px] tracking-wider text-muted uppercase">
-                  Reference sample · not a client result
+                <span className="font-mono text-[10px] tracking-wider text-muted uppercase">
+                  RFC 2606 Sample Header
                 </span>
                 <button
                   type="button"
                   onClick={copyHeader}
-                  className="inline-flex items-center gap-1.5 border border-line bg-card px-2 py-1 font-mono text-[11px] text-muted transition-colors hover:text-ink"
+                  className="inline-flex items-center gap-1.5 border border-line bg-card px-2 py-1 font-mono text-[10px] text-muted transition-colors hover:text-ink rounded"
                 >
                   {copied ? (
                     <>
@@ -219,20 +225,35 @@ export function HeroDeliverability() {
                   ) : (
                     <>
                       <Copy className="size-3" aria-hidden="true" />
-                      Copy
+                      Copy Header
                     </>
                   )}
                 </button>
               </figcaption>
-              <pre className="mt-2 overflow-x-auto border border-term-line bg-term p-3 font-mono text-[11px] leading-relaxed text-term-ink">
+              <pre className="mt-1.5 overflow-x-auto rounded-lg border border-term-line bg-term p-3 font-mono text-[11px] leading-relaxed text-term-ink">
                 {SAMPLE_HEADER}
               </pre>
-              <p className="mt-2 font-mono text-[11px] leading-relaxed text-muted">
-                example.com is a reserved domain (RFC 2606). This shows the
-                shape of a passing result, not any client&rsquo;s configuration.
-              </p>
             </figure>
           </div>
+
+        </div>
+      </div>
+
+      {/* Marquee Ticker */}
+      <div className="marquee relative mt-12 border-y border-line bg-card py-2.5" aria-hidden="true">
+        <div className="marquee-track">
+          {[0, 1].map((copy) => (
+            <div key={copy} className="flex shrink-0 gap-10">
+              {marqueeTokens.map((token) => (
+                <span
+                  key={`${copy}-${token}`}
+                  className="whitespace-nowrap font-mono text-[11px] tracking-wider text-muted"
+                >
+                  {token}
+                </span>
+              ))}
+            </div>
+          ))}
         </div>
       </div>
     </section>

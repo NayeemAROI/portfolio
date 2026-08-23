@@ -3,6 +3,7 @@ export interface ProofMetric {
   label: string;
   value: string;
   caption: string;
+  badge?: string;
   icon: "check" | "star" | "shield" | "clock" | "zap" | "mail";
 }
 
