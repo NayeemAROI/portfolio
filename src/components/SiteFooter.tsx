@@ -1,111 +1,97 @@
-"use client";
-
-import { useEffect, useState } from "react";
+import Link from "next/link";
+import { ArrowUpRight, ExternalLink } from "lucide-react";
 import { site } from "@/data/site";
 import { links } from "@/data/links";
-import { ShieldCheck, ArrowUpRight, Github, Linkedin, Mail } from "lucide-react";
+
+const pages = [
+  { href: "/", label: "Home" },
+  { href: "/#services", label: "Services" },
+  { href: "/work", label: "Work" },
+  { href: "/about", label: "About" },
+  { href: "/contact", label: "Contact" },
+];
+
+const elsewhere = [
+  { href: links.upwork, label: "Upwork" },
+  { href: links.linkedin, label: "LinkedIn" },
+  { href: links.github, label: "GitHub" },
+];
 
 export function SiteFooter() {
-  const [dhakaTime, setDhakaTime] = useState<string>("");
-
-  useEffect(() => {
-    const updateTime = () => {
-      const now = new Date();
-      const options: Intl.DateTimeFormatOptions = {
-        timeZone: "Asia/Dhaka",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: true,
-      };
-      setDhakaTime(new Intl.DateTimeFormat("en-US", options).format(now));
-    };
-
-    updateTime();
-    const interval = setInterval(updateTime, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
   return (
-    <footer className="border-t border-line bg-card py-12">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 pb-8 border-b border-line/60">
-          
-          {/* Brand & Location */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <span className="flex size-7 items-center justify-center rounded bg-ink font-mono text-xs font-bold text-paper">
-                NR
-              </span>
-              <span className="font-sans text-base font-bold text-ink">
-                {site.name}
-              </span>
-            </div>
-            <p className="font-mono text-xs text-muted max-w-md">
-              {site.role} • {site.location}
+    <footer className="border-t border-term-line bg-term text-term-ink">
+      <div className="mx-auto w-full max-w-6xl px-4 py-14 sm:px-6">
+        <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr]">
+          <div>
+            <p className="font-display text-xl font-semibold tracking-tight">
+              {site.name}
             </p>
-            {dhakaTime && (
-              <div className="flex items-center gap-2 font-mono text-[11px] text-muted">
-                <span className="size-1.5 rounded-full bg-delivered animate-pulse" />
-                <span>Local Time: {dhakaTime} (Dhaka GMT+6)</span>
-              </div>
-            )}
+            <p className="mt-1 font-mono text-xs uppercase tracking-[0.18em] text-term-muted">
+              {site.role}
+            </p>
+            <p className="mt-4 max-w-sm text-sm leading-relaxed text-term-muted">
+              {site.tagline} Working worldwide from {site.location} ({site.timezone}).
+            </p>
+            <Link
+              href="/contact"
+              className="mt-5 inline-flex items-center gap-1.5 font-mono text-sm text-delivered-bright underline decoration-delivered/40 underline-offset-4 transition-colors hover:text-term-ink"
+            >
+              Compose a message
+              <ArrowUpRight className="size-3.5" />
+            </Link>
           </div>
 
-          {/* Direct Profile Links */}
-          <div className="flex flex-wrap gap-4 font-mono text-xs">
-            <a
-              href={links.upwork}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-muted hover:text-delivered-ink transition"
-            >
-              <ShieldCheck className="size-3.5" />
-              Upwork
-              <ArrowUpRight className="size-3" />
-            </a>
+          <nav aria-label="Footer pages">
+            <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-term-muted">
+              Pages
+            </p>
+            <ul className="mt-4 space-y-2.5">
+              {pages.map((p) => (
+                <li key={p.href}>
+                  <Link
+                    href={p.href}
+                    className="text-sm text-term-ink/80 transition-colors hover:text-delivered-bright"
+                  >
+                    {p.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
 
-            <a
-              href={links.github}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-muted hover:text-ink transition"
-            >
-              <Github className="size-3.5" />
-              GitHub
-              <ArrowUpRight className="size-3" />
-            </a>
-
-            <a
-              href={links.linkedin}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-muted hover:text-ink transition"
-            >
-              <Linkedin className="size-3.5" />
-              LinkedIn
-              <ArrowUpRight className="size-3" />
-            </a>
-
-            <a
-              href={`mailto:${links.email}`}
-              className="inline-flex items-center gap-1.5 text-muted hover:text-ink transition"
-            >
-              <Mail className="size-3.5" />
-              Email
-            </a>
-          </div>
-
+          <nav aria-label="Footer profiles">
+            <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-term-muted">
+              Elsewhere
+            </p>
+            <ul className="mt-4 space-y-2.5">
+              {elsewhere.map((p) => (
+                <li key={p.href}>
+                  <a
+                    href={p.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-sm text-term-ink/80 transition-colors hover:text-delivered-bright"
+                  >
+                    {p.label}
+                    <ExternalLink className="size-3" />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
         </div>
 
-        {/* Bottom Colophon */}
-        <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-[11px] text-muted">
-          <span>
-            © {new Date().getFullYear()} {site.name}. All rights reserved.
-          </span>
-          <span className="text-center sm:text-right">
-            Delivered System • Next.js 15 • 100% Verified Upwork Proof
-          </span>
+        <div className="mt-12 overflow-x-auto rounded-lg border border-term-line bg-term-surface px-4 py-3">
+          <code className="whitespace-nowrap font-mono text-[11px] text-term-muted">
+            nayeem._proof&nbsp;&nbsp;IN&nbsp;&nbsp;TXT&nbsp;&nbsp;&quot;v=PROOF1; jss=100%; rating=5.0; jobs=7/8; id=verified; ships=always&quot;
+          </code>
+        </div>
+
+        <div className="mt-8 flex flex-col items-start justify-between gap-3 border-t border-term-line pt-6 text-xs text-term-muted sm:flex-row sm:items-center">
+          <p>
+            © {new Date().getFullYear()} {site.name} · {site.location}
+          </p>
+          <p className="font-mono">Next.js 15 · Tailwind v4 · zero tracking scripts</p>
         </div>
       </div>
     </footer>

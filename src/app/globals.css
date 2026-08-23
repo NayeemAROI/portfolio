@@ -6,7 +6,6 @@
   --color-ink: #101418;
   --color-muted: #5b6470;
   --color-line: #e3e1da;
-  --color-line-soft: #ecebe5;
   --color-card: #ffffff;
 
   --color-term: #0b0e11;
@@ -18,7 +17,6 @@
   --color-delivered: #1fa55a;
   --color-delivered-ink: #187f46;
   --color-delivered-bright: #34d07c;
-  --color-delivered-wash: #eaf6ee;
   --color-warm: #e8a13c;
   --color-spam: #e0533d;
 
@@ -28,19 +26,10 @@
 
   --radius-card: 14px;
 
-  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --shadow-card: 0 1px 2px rgb(16 20 24 / 0.05), 0 10px 30px -12px rgb(16 20 24 / 0.12);
+  --shadow-lift: 0 2px 6px rgb(16 20 24 / 0.06), 0 20px 48px -16px rgb(16 20 24 / 0.2);
+  --shadow-term: 0 24px 64px -24px rgb(3 6 9 / 0.7);
 }
-
-/* ============================================================
-   CONTRAST NOTES (computed, not eyeballed)
-
-   White on --color-delivered   #1FA55A = 3.15:1  FAILS body text
-   White on --color-delivered-ink #187F46 = 5.07:1  passes
-
-   So: solid buttons use delivered-ink with white text. Plain
-   --color-delivered is a fill, a border, or large-text only. Getting
-   this backwards is the fastest way to fail AA while looking correct.
-   ============================================================ */
 
 @layer base {
   body {
@@ -49,136 +38,160 @@
     font-family: var(--font-sans);
     line-height: 1.65;
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
 
-  /* Anchor targets clear the sticky header. */
-  [id] {
-    scroll-margin-top: 5rem;
+  ::selection {
+    background-color: color-mix(in srgb, var(--color-delivered) 25%, transparent);
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-delivered);
+    outline-offset: 2px;
   }
 }
 
-::selection {
-  background-color: var(--color-delivered-wash);
-  color: var(--color-ink);
+/* ---------- Motion primitives ---------- */
+
+@keyframes land {
+  0% {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.985);
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
-:focus-visible {
-  outline: 2px solid var(--color-delivered);
-  outline-offset: 2px;
-}
-
-/* Form controls previously killed their own outline and signalled focus with
-   a border colour change only, which is a 1px cue that fails 3:1. */
-input:focus-visible,
-textarea:focus-visible,
-select:focus-visible {
-  outline: 2px solid var(--color-delivered);
-  outline-offset: 2px;
-  border-color: var(--color-delivered-ink);
-}
-
-/* ============================================================
-   SIGNATURE MOTIF: the inbox hero.
-   DESIGN.md motif 1 — value props arrive as email rows, 60ms stagger,
-   then the delivered check draws in. Plays once on load, never loops.
-   ============================================================ */
-
-@keyframes row-arrive {
+@keyframes rise {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(18px);
   }
   to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(0.85);
+  }
+}
+
+@keyframes blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.animate-land {
+  animation: land 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-rise {
+  animation: rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-pulse-dot {
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+.animate-blink {
+  animation: blink 1.1s step-end infinite;
+}
+
+/* Scroll reveal (paired with components/Reveal.tsx) */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Marquee rail */
+.marquee {
+  overflow: hidden;
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  gap: 2.5rem;
+  animation: marquee 36s linear infinite;
+}
+
+/* Ambient halos */
+.term-halo {
+  background-image:
+    radial-gradient(60rem 30rem at 85% -10%, rgb(31 165 90 / 0.16), transparent 60%),
+    radial-gradient(40rem 24rem at -10% 110%, rgb(52 208 124 / 0.08), transparent 60%);
+}
+
+.paper-halo {
+  background-image: radial-gradient(48rem 24rem at 50% -12%, rgb(31 165 90 / 0.08), transparent 65%);
+}
+
+.u-tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .reveal {
     opacity: 1;
     transform: none;
   }
 }
 
-@keyframes check-draw {
-  from {
-    stroke-dashoffset: 22;
-  }
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-
-@keyframes seal-arrive {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.inbox-row {
-  animation: row-arrive 240ms var(--ease-out-expo) both;
-  animation-delay: calc(var(--i, 0) * 60ms);
-}
-
-.inbox-check {
-  stroke-dasharray: 22;
-  animation: check-draw 300ms var(--ease-out-expo) both;
-  /* lands after its own row has arrived */
-  animation-delay: calc(160ms + var(--i, 0) * 60ms);
-}
-
-.inbox-seal {
-  animation: seal-arrive 240ms var(--ease-out-expo) both;
-  animation-delay: 560ms;
-}
-
-/* ============================================================
-   REDUCED MOTION
-
-   DESIGN.md: "opacity-only transitions, static marquee." The previous
-   global 0.01ms !important kill wiped every transition on the page,
-   including state feedback on buttons and form controls. Reduced motion
-   means less movement, not no feedback.
-   ============================================================ */
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-
-  /* Movement is removed. Opacity fades stay, shortened. */
-  .inbox-row {
-    animation: seal-arrive 120ms linear both;
-    animation-delay: calc(var(--i, 0) * 30ms);
-  }
-
-  .inbox-check {
-    animation: none;
-    stroke-dasharray: none;
-  }
-
-  .inbox-seal {
-    animation-duration: 120ms;
-    animation-delay: 200ms;
-  }
-
-  /* Any decorative loop stops. State transitions survive. */
-  .animate-pulse,
-  .animate-ping,
-  .animate-bounce,
-  .animate-spin {
-    animation: none !important;
-  }
-
-  [class*="marquee"] {
-    animation: none !important;
-  }
-}
-
-/* Custom subtle scrollbar */
+/* Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--color-paper);
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
   background: var(--color-line);
