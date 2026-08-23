@@ -21,14 +21,15 @@ export const metadata: Metadata = {
     'Cold email deliverability: SPF, DKIM, DMARC, DNS and inbox placement across Google Workspace and Microsoft 365. Delivered is not inboxed.',
   openGraph: {
     title: `${NAME} \u2014 ${TITLE}`,
-    description: 'Delivered is not inboxed. Deliverability diagnosed at the authentication chain.',
+    description:
+      'Delivered is not inboxed. Deliverability diagnosed at the authentication chain.',
     type: 'website',
   },
 };
 
 /*
  * The direction contract. It must survive the production build as a real HTML
- * comment, so it is injected rather than written as JSX (JSX comments are
+ * comment, so it is injected rather than written as a JSX comment (those are
  * compiled away). Verify with: npm run verify
  */
 const CONTRACT = `<!--
@@ -52,13 +53,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${mono.variable} ${sans.variable}`}>
       <body>
         <div hidden dangerouslySetInnerHTML={{ __html: CONTRACT }} />
-        <a className="sr" href="#chain">
+        <a className="skip" href="#chain">
           Skip to the authentication chain
         </a>
         {children}
         <footer>
           <div className="wrap">
-            {NAME} \u00b7 {TITLE} \u00b7 <a href={`mailto:${CONTACT}`}>{CONTACT}</a>
+            {NAME} {'\u00b7'} {TITLE} {'\u00b7'}{' '}
+            <a href={`mailto:${CONTACT}`}>{CONTACT}</a>
           </div>
         </footer>
       </body>
