@@ -64,7 +64,7 @@ export function SiteHeader() {
         <div className="hidden items-center gap-2 rounded-full border border-line bg-card px-3 py-1 lg:flex">
           <span className="size-1.5 rounded-full bg-delivered animate-pulse-dot" />
           <span className="font-mono text-[11px] tracking-wide text-muted">
-            SPF · DKIM · DMARC — PASS
+            SPF · DKIM · DMARC · PASS
           </span>
         </div>
 

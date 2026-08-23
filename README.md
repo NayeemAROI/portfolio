@@ -1,7 +1,7 @@
-# Nayeemur Rahman — Portfolio
+# Nayeemur Rahman · Portfolio
 
-Portfolio site for an email deliverability specialist. Built around one idea:
-the site itself behaves like a healthy inbox — everything lands, nothing goes
+Portfolio site for an email deliverability specialist, built around one idea:
+the site itself behaves like a healthy inbox. Everything lands, nothing goes
 to spam.
 
 ## Stack
@@ -10,7 +10,7 @@ to spam.
 - React 19, TypeScript strict
 - Tailwind CSS v4 (design tokens in `src/app/globals.css`)
 - lucide-react icons, Vitest for the data truth guard
-- No client-side tracking, no heavy animation libraries — CSS motion only
+- CSS-only motion, no tracking scripts, no animation libraries
 
 ## Commands
 
@@ -23,16 +23,18 @@ npm test        # truth-guard tests over src/data
 
 ## Structure
 
-- `src/app` — routes: `/`, `/services/[slug]`, `/work`, `/about`, `/contact`
-- `src/components` — view layer (header, hero inbox simulation, DNS panel, compose CTA)
-- `src/data` — the only place content lives; guarded by `truth.test.ts`
-- `PRODUCT.md` / `DESIGN.md` — product truth and the “Delivered” design system
-- `legacy/` — pre-redesign static site, kept for reference
+- `src/app`: routes `/`, `/services/[slug]`, `/work`, `/about`, `/contact`, plus `sitemap.ts` and `robots.ts`
+- `src/components`: view layer (header, hero inbox simulation, DNS panel, compose CTA)
+- `src/data`: the only place content lives, guarded by `truth.test.ts`
+- `PRODUCT.md` / `DESIGN.md`: product truth and the Delivered design system
+- `legacy/`: pre-redesign static site, kept for reference
 
 ## Content rules
 
 All copy comes from verified Upwork profile data. No invented metrics, no
-placeholder logos, no fake testimonials — enforced by `npm test`.
+placeholder logos, no fake testimonials. Quarantined figures stay out of the
+UI until they have evidence (see PRODUCT.md). Demo surfaces (inbox
+simulation, DNS table) are labeled and use reserved domains.
 
 ## Deploy
 

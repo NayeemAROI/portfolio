@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ExternalLink } from "lucide-react";
+import { ArrowUpRight, ExternalLink } from "lucide-react";
 import { site } from "@/data/site";
 import { links } from "@/data/links";
 
@@ -32,12 +32,13 @@ export function SiteFooter() {
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-term-muted">
               {site.tagline} Working worldwide from {site.location} ({site.timezone}).
             </p>
-            <a
-              href={`mailto:${links.email}`}
-              className="mt-5 inline-block font-mono text-sm text-delivered-bright underline decoration-delivered/40 underline-offset-4 transition-colors hover:text-term-ink"
+            <Link
+              href="/contact"
+              className="mt-5 inline-flex items-center gap-1.5 font-mono text-sm text-delivered-bright underline decoration-delivered/40 underline-offset-4 transition-colors hover:text-term-ink"
             >
-              {links.email}
-            </a>
+              Compose a message
+              <ArrowUpRight className="size-3.5" />
+            </Link>
           </div>
 
           <nav aria-label="Footer pages">
@@ -82,7 +83,7 @@ export function SiteFooter() {
 
         <div className="mt-12 overflow-x-auto rounded-lg border border-term-line bg-term-surface px-4 py-3">
           <code className="whitespace-nowrap font-mono text-[11px] text-term-muted">
-            nayeem._proof&nbsp;&nbsp;IN&nbsp;&nbsp;TXT&nbsp;&nbsp;&quot;v=PROOF1; jss=100%; rating=5.0; jobs=7/7; response=0-4h; ships=always&quot;
+            nayeem._proof&nbsp;&nbsp;IN&nbsp;&nbsp;TXT&nbsp;&nbsp;&quot;v=PROOF1; jss=100%; rating=5.0; jobs=7/8; id=verified; ships=always&quot;
           </code>
         </div>
 

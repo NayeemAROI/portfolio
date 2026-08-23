@@ -1,36 +1,32 @@
-"use client";
-
-import { useState } from "react";
 import Link from "next/link";
+import { ArrowRight, Inbox, ShieldCheck, Star } from "lucide-react";
 import { site } from "@/data/site";
-import { links } from "@/data/links";
-import { ArrowRight, Inbox, ShieldCheck, Mail, Copy, Check, Star } from "lucide-react";
 
-const INBOX_ROWS = [
+const inboxRows = [
   {
-    record: "SPF / DKIM / DMARC",
-    outcome: "Authentication aligned end to end",
-    detail: "Alignment, not just presence. p=reject when the domain can carry it.",
+    sender: "Google Postmaster",
+    subject: "Domain reputation: High",
+    time: "09:12",
   },
   {
-    record: "MX / DNS",
-    outcome: "Routing and records under control",
-    detail: "Cloudflare, GoDaddy, Namecheap, cPanel.",
+    sender: "Prospect (reply)",
+    subject: "Re: quick question about your offer",
+    time: "09:14",
   },
   {
-    record: "Workspace / M365",
-    outcome: "Tenants configured and migrated",
-    detail: "Mailbox migration without downtime.",
+    sender: "DMARC digest",
+    subject: "p=reject, all sources aligned",
+    time: "09:20",
   },
   {
-    record: "Warmup / rotation",
-    outcome: "Sending inboxes kept healthy",
-    detail: "Pacing and rotation across sending accounts.",
+    sender: "Instantly",
+    subject: "Warmup healthy across all inboxes",
+    time: "09:31",
   },
   {
-    record: "Instantly / Apollo / Clay",
-    outcome: "Campaign infrastructure that scales",
-    detail: "Sequences, enrichment, list hygiene before a send.",
+    sender: "Client",
+    subject: "Open rates are up again. Nice work",
+    time: "09:44",
   },
 ];
 
@@ -45,209 +41,169 @@ const marqueeTokens = [
   "INBOX: PRIMARY ✓",
 ];
 
-const SAMPLE_HEADER = `Authentication-Results: mx.google.com;
-  spf=pass       smtp.mailfrom=example.com;
-  dkim=pass      header.i=@example.com;
-  dmarc=pass     (p=REJECT sp=REJECT) header.from=example.com;`;
-
-function DeliveredCheck({ index }: { index: number }) {
-  return (
-    <svg
-      viewBox="0 0 16 16"
-      className="size-4 shrink-0"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path
-        className="inbox-check"
-        style={{ "--i": index } as React.CSSProperties}
-        d="M2.5 8.5 L6 12 L13.5 4"
-      />
-    </svg>
-  );
-}
+const heroStats = [
+  { value: site.stats.jss, label: "Job Success Score" },
+  { value: site.stats.rating, label: "rating on every completed job" },
+  {
+    value: `${site.stats.completedJobs} / ${site.stats.totalJobs}`,
+    label: `jobs closed, ${site.stats.inProgress} in progress`,
+  },
+];
 
 export function HeroDeliverability() {
-  const [copied, setCopied] = useState(false);
-
-  const copyHeader = async () => {
-    try {
-      await navigator.clipboard.writeText(SAMPLE_HEADER);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // Ignore clipboard failure gracefully
-    }
-  };
-
   return (
-    <section className="relative overflow-hidden border-b border-line bg-paper pt-12 pb-16 md:pt-20 md:pb-24">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="grid gap-12 lg:grid-cols-12 lg:items-start lg:gap-10">
-          
-          {/* Left: Positioning & Value Proposition */}
-          <div className="lg:col-span-6">
-            <div className="inline-flex items-center gap-2 border border-line bg-card px-3 py-1.5 rounded-full shadow-2xs">
-              <span className="size-2 rounded-full bg-delivered animate-pulse" />
-              <span className="font-mono text-xs font-medium text-ink">
+    <section className="relative overflow-hidden bg-term text-term-ink">
+      <div className="term-halo absolute inset-0" aria-hidden="true" />
+
+      <div className="relative mx-auto w-full max-w-6xl px-4 pb-16 pt-16 sm:px-6 md:pb-20 md:pt-24">
+        <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
+          {/* Copy column */}
+          <div>
+            <p className="animate-rise inline-flex items-center gap-2 rounded-full border border-term-line bg-term-surface px-3.5 py-1.5">
+              <span className="size-1.5 rounded-full bg-delivered-bright animate-pulse-dot" />
+              <span className="font-mono text-[11px] tracking-wide text-term-muted">
                 {site.availability}
               </span>
-            </div>
+            </p>
 
-            <h1 className="mt-6 font-display text-4xl font-extrabold tracking-tight text-ink sm:text-5xl lg:text-[3.4rem] lg:leading-[1.08]">
-              Cold email that lands in the{" "}
-              <span className="text-delivered-ink">primary inbox</span>, not spam.
+            <h1
+              className="animate-rise mt-6 font-display text-4xl font-semibold leading-[1.06] tracking-tight sm:text-5xl lg:text-[3.6rem]"
+              style={{ animationDelay: "90ms" }}
+            >
+              Your emails belong in the{" "}
+              <span className="text-delivered-bright">primary inbox.</span>
+              <br />
+              I put them there.
             </h1>
 
-            <p className="mt-5 max-w-[60ch] text-base leading-relaxed text-muted sm:text-lg">
-              {site.headline}
+            <p
+              className="animate-rise mt-5 max-w-xl text-base leading-relaxed text-term-muted sm:text-lg"
+              style={{ animationDelay: "180ms" }}
+            >
+              {site.bio}
             </p>
 
-            <p className="mt-3 text-sm leading-relaxed text-ink/80">
-              I configure, authenticate, and rescue outbound email infrastructure. From full SPF/DKIM/DMARC alignment and Google Workspace/Microsoft 365 migrations to scalable Instantly/Apollo campaign architecture.
-            </p>
-
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <a
-                href="#contact"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-delivered-ink px-5 py-3 font-mono text-xs font-semibold text-white transition-colors hover:bg-ink active:scale-95"
+            <div
+              className="animate-rise mt-8 flex flex-wrap items-center gap-3"
+              style={{ animationDelay: "270ms" }}
+            >
+              <Link
+                href="/contact"
+                className="inline-flex items-center gap-2 rounded-xl bg-delivered px-5 py-3 font-semibold text-term transition-all hover:-translate-y-0.5 hover:bg-delivered-bright"
               >
-                <Mail className="size-4" aria-hidden="true" />
-                Get deliverability help
-                <ArrowRight className="size-4" aria-hidden="true" />
-              </a>
-
-              <a
-                href={links.upwork}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-line bg-card px-5 py-3 font-mono text-xs font-medium text-ink shadow-2xs transition-colors hover:border-muted hover:bg-paper active:scale-95"
+                Fix my deliverability
+                <ArrowRight className="size-4" />
+              </Link>
+              <Link
+                href="/work"
+                className="inline-flex items-center gap-2 rounded-xl border border-term-line px-5 py-3 font-medium text-term-ink transition-colors hover:border-term-muted hover:bg-term-surface"
               >
-                <ShieldCheck className="size-4 text-delivered-ink" aria-hidden="true" />
-                Hire on Upwork
-              </a>
+                See the receipts
+              </Link>
             </div>
 
-            <dl className="mt-8 grid max-w-md grid-cols-3 gap-4 border-t border-line pt-6 font-mono text-xs">
-              <div>
-                <dt className="text-muted">Job Success</dt>
-                <dd className="mt-0.5 text-lg font-bold text-ink">
-                  {site.stats.jss}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-muted">Rating</dt>
-                <dd className="mt-0.5 text-lg font-bold text-ink">
-                  {site.stats.rating} ★
-                </dd>
-              </div>
-              <div>
-                <dt className="text-muted">Completed</dt>
-                <dd className="mt-0.5 text-lg font-bold text-ink">
-                  {site.stats.completedJobs} / {site.stats.completedJobs}
-                </dd>
-              </div>
+            <dl
+              className="animate-rise mt-10 grid max-w-lg grid-cols-3 gap-4"
+              style={{ animationDelay: "360ms" }}
+            >
+              {heroStats.map((stat) => (
+                <div key={stat.label}>
+                  <dd className="u-tabular font-display text-2xl font-semibold text-term-ink">
+                    {stat.value}
+                  </dd>
+                  <dt className="mt-0.5 text-xs text-term-muted">{stat.label}</dt>
+                </div>
+              ))}
             </dl>
           </div>
 
-          {/* Right: Signature Inbox Deliverability Motif */}
-          <div className="lg:col-span-6">
-            <div className="border border-line bg-card rounded-2xl shadow-sm overflow-hidden">
-              <div className="flex items-baseline justify-between border-b border-line bg-paper px-4 py-3">
-                <span className="font-mono text-[11px] tracking-wider text-muted uppercase">
-                  Verified Outbound Infrastructure
+          {/* Inbox simulation (demo data, labeled) */}
+          <div className="animate-rise" style={{ animationDelay: "200ms" }}>
+            <div className="overflow-hidden rounded-2xl border border-term-line bg-term-surface shadow-term">
+              <div className="flex items-center gap-3 border-b border-term-line px-4 py-3">
+                <span className="flex gap-1.5">
+                  <span className="size-2.5 rounded-full bg-spam/70" />
+                  <span className="size-2.5 rounded-full bg-warm/70" />
+                  <span className="size-2.5 rounded-full bg-delivered/70" />
                 </span>
-                <span className="font-mono text-[11px] font-semibold text-delivered-ink">
-                  5 / 5 ALIGNED
+                <span className="font-mono text-xs text-term-muted">
+                  inbox: primary
+                </span>
+                <span className="ml-auto rounded-md border border-term-line px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-term-muted">
+                  demo
                 </span>
               </div>
 
-              <ul className="divide-y divide-line-soft">
-                {INBOX_ROWS.map((row, i) => (
-                  <li
-                    key={row.record}
-                    className="inbox-row flex gap-3 px-4 py-3.5"
-                    style={{ "--i": i } as React.CSSProperties}
-                  >
-                    <span className="mt-0.5 text-delivered-ink">
-                      <DeliveredCheck index={i} />
-                    </span>
-                    <span className="min-w-0">
-                      <span className="block font-mono text-[11px] tracking-wide text-muted">
-                        {row.record}
+              <div className="grid sm:grid-cols-[110px_1fr]">
+                <aside className="hidden border-r border-term-line p-3 sm:block">
+                  <ul className="space-y-1 font-mono text-[11px]">
+                    <li className="flex items-center justify-between rounded-md bg-delivered/15 px-2 py-1.5 text-delivered-bright">
+                      <span className="inline-flex items-center gap-1.5">
+                        <Inbox className="size-3" />
+                        Primary
                       </span>
-                      <span className="mt-0.5 block text-sm font-semibold text-ink">
-                        {row.outcome}
-                      </span>
-                      <span className="mt-0.5 block text-xs leading-relaxed text-muted">
-                        {row.detail}
-                      </span>
-                    </span>
-                  </li>
-                ))}
-              </ul>
+                      <span>{inboxRows.length}</span>
+                    </li>
+                    <li className="flex items-center justify-between px-2 py-1.5 text-term-muted">
+                      <span>Updates</span>
+                      <span>—</span>
+                    </li>
+                    <li className="flex items-center justify-between px-2 py-1.5 text-term-muted">
+                      <span>Spam</span>
+                      <span className="rounded bg-delivered/20 px-1.5 text-delivered-bright">0</span>
+                    </li>
+                    <li className="flex items-center justify-between px-2 py-1.5 text-term-muted">
+                      <span>Trash</span>
+                      <span>—</span>
+                    </li>
+                  </ul>
+                </aside>
 
-              <div className="inbox-seal border-t border-line bg-delivered-wash px-4 py-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <ShieldCheck className="size-4 text-delivered-ink" aria-hidden="true" />
-                    <span className="font-mono text-xs font-semibold text-delivered-ink">
-                      Authentication: PASS (SPF, DKIM, DMARC)
-                    </span>
-                  </div>
-                  <span className="font-mono text-[10px] rounded bg-delivered/10 px-2 py-0.5 text-delivered-ink font-bold">
-                    PRIMARY INBOX
-                  </span>
-                </div>
+                <ul className="divide-y divide-term-line">
+                  {inboxRows.map((row, i) => (
+                    <li
+                      key={row.subject}
+                      className="animate-land flex items-center gap-3 px-4 py-3"
+                      style={{ animationDelay: `${400 + i * 160}ms` }}
+                    >
+                      <span className="size-1.5 shrink-0 rounded-full bg-delivered-bright" />
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-[13px] font-semibold text-term-ink">
+                          {row.sender}
+                        </p>
+                        <p className="truncate text-xs text-term-muted">{row.subject}</p>
+                      </div>
+                      <span className="shrink-0 font-mono text-[10px] text-term-muted">
+                        {row.time}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="flex items-center justify-between border-t border-term-line px-4 py-2.5">
+                <span className="inline-flex items-center gap-1.5 font-mono text-[10px] text-delivered-bright">
+                  <ShieldCheck className="size-3" />
+                  SPF PASS · DKIM PASS · DMARC PASS
+                </span>
+                <span className="inline-flex items-center gap-1 font-mono text-[10px] text-term-muted">
+                  <Star className="size-3 fill-warm text-warm" />
+                  {site.stats.rating} · {site.stats.jss} JSS
+                </span>
               </div>
             </div>
-
-            {/* Reference Sample */}
-            <figure className="mt-4">
-              <figcaption className="flex items-center justify-between gap-3">
-                <span className="font-mono text-[10px] tracking-wider text-muted uppercase">
-                  RFC 2606 Sample Header
-                </span>
-                <button
-                  type="button"
-                  onClick={copyHeader}
-                  className="inline-flex items-center gap-1.5 border border-line bg-card px-2 py-1 font-mono text-[10px] text-muted transition-colors hover:text-ink rounded"
-                >
-                  {copied ? (
-                    <>
-                      <Check className="size-3 text-delivered-ink" aria-hidden="true" />
-                      Copied
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="size-3" aria-hidden="true" />
-                      Copy Header
-                    </>
-                  )}
-                </button>
-              </figcaption>
-              <pre className="mt-1.5 overflow-x-auto rounded-lg border border-term-line bg-term p-3 font-mono text-[11px] leading-relaxed text-term-ink">
-                {SAMPLE_HEADER}
-              </pre>
-            </figure>
           </div>
-
         </div>
       </div>
 
-      {/* Marquee Ticker */}
-      <div className="marquee relative mt-12 border-y border-line bg-card py-2.5" aria-hidden="true">
+      <div className="marquee relative border-t border-term-line py-3" aria-hidden="true">
         <div className="marquee-track">
           {[0, 1].map((copy) => (
             <div key={copy} className="flex shrink-0 gap-10">
               {marqueeTokens.map((token) => (
                 <span
                   key={`${copy}-${token}`}
-                  className="whitespace-nowrap font-mono text-[11px] tracking-wider text-muted"
+                  className="whitespace-nowrap font-mono text-[11px] tracking-[0.18em] text-term-muted"
                 >
                   {token}
                 </span>

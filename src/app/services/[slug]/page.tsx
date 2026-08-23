@@ -116,17 +116,17 @@ export default async function ServicePage({
                 <ul className="mt-4 space-y-4 text-sm">
                   <li className="flex items-start gap-3">
                     <FileCheck className="mt-0.5 size-4 shrink-0 text-delivered" />
-                    Every change documented — records, settings, and why they
+                    Every change documented: records, settings, and why they
                     changed. You keep the playbook.
                   </li>
                   <li className="flex items-start gap-3">
                     <ShieldCheck className="mt-0.5 size-4 shrink-0 text-delivered" />
-                    Before/after verification with the actual tooling — not
+                    Before and after verification with the actual tooling, not
                     screenshots of promises.
                   </li>
                   <li className="flex items-start gap-3">
                     <Clock className="mt-0.5 size-4 shrink-0 text-delivered" />
-                    Async-friendly. Responds in 0–4 hours, GMT+6.
+                    Async-friendly. Working hours in Asia/Dhaka (GMT+6).
                   </li>
                 </ul>
                 <Link

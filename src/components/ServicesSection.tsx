@@ -34,7 +34,7 @@ export function ServicesSection() {
       id="services"
       eyebrow="Services"
       title="Five pillars. One outcome: delivered."
-      intro="Everything below is production work I do every week — not a menu of maybes. Each pillar has its own playbook."
+      intro="Everything below is production work I do every week, not a menu of maybes. Each pillar has its own playbook."
     >
       <div className="grid gap-4 md:grid-cols-6">
         {services.map((service, i) => {

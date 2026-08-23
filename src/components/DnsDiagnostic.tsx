@@ -1,5 +1,9 @@
 import { Reveal } from "@/components/Reveal";
 
+/**
+ * Demonstration records per PRODUCT.md: labeled as demo, using the RFC 2606
+ * reserved domain example.com rather than a plausible real one.
+ */
 const records = [
   {
     type: "TXT",
@@ -45,9 +49,9 @@ export function DnsDiagnostic() {
             What a healthy domain looks like.
           </h2>
           <p className="mt-4 text-term-muted">
-            Representative authentication records from a properly configured
-            sending domain. Every engagement starts with this audit: SPF, DKIM,
-            DMARC alignment, MX routing, blacklist scan, postmaster reputation.
+            Demonstration records for example.com. Every engagement starts with
+            this audit: SPF, DKIM, DMARC alignment, MX routing, blacklist scan,
+            postmaster reputation.
           </p>
         </Reveal>
 
@@ -55,8 +59,11 @@ export function DnsDiagnostic() {
           <div className="overflow-hidden rounded-2xl border border-term-line bg-term-surface shadow-term">
             <div className="flex items-center gap-2 border-b border-term-line px-4 py-3 font-mono text-xs text-term-muted">
               <span className="text-delivered-bright">$</span>
-              dig TXT +short yourdomain.com
+              dig TXT +short example.com
               <span className="animate-blink inline-block h-3.5 w-[7px] bg-term-muted/70" />
+              <span className="ml-auto rounded-md border border-term-line px-2 py-0.5 text-[10px] uppercase tracking-wider">
+                demo
+              </span>
             </div>
 
             <div className="hidden grid-cols-[64px_150px_1fr_88px] gap-3 border-b border-term-line px-4 py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-term-muted sm:grid">
