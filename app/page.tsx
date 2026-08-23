@@ -154,8 +154,7 @@ export default function Page() {
                   <div className="rec-stack">
                     <div className="job-head">
                       <h3 className="job-title">{j.title}</h3>
-                      <span className="rating">
-                        <span className="sr-only">Rating </span>
+                      <span className="rating" aria-label={`Rated ${j.rating} out of 5`}>
                         {j.rating}
                       </span>
                     </div>
