@@ -25,22 +25,24 @@ function delay(step: number) {
 export default function Page() {
   return (
     <>
-      <section className="fold">
+      <section className="fold" aria-label="Authentication result">
         <div className="wrap hdr">
           <span className="hdr-field line" style={delay(0)}>
             Authentication-Results: mx.google.com;
           </span>
 
+          {/* The verdicts are the page's largest type but not its heading:
+              the subject line below carries the h1. Size is not hierarchy. */}
           <div className="verdicts">
             {VERDICTS.map((v, i) => (
               <div className="verdict line" key={v.key} style={delay(i + 1)}>
-                <h1 className="verdict-main">
+                <p className="verdict-main">
                   {v.key}
                   <span className="eq">=</span>
                   <span className="stamp" style={delay(i + 2)}>
                     pass
                   </span>
-                </h1>
+                </p>
                 <span className="verdict-meta">{v.meta}</span>
               </div>
             ))}
@@ -50,12 +52,12 @@ export default function Page() {
             From: <b>{NAME}</b> &lt;{CONTACT}&gt;
           </span>
           <span className="hdr-field line" style={delay(5)}>
-            X-Role: {TITLE} · {LOCATION}
+            X-Role: {TITLE} {'\u00b7'} {LOCATION}
           </span>
 
-          <p className="subject line" style={delay(6)}>
+          <h1 className="subject line" style={delay(6)}>
             {SUBJECT}
-          </p>
+          </h1>
 
           <div className="replyto line" style={delay(7)}>
             <span className="hdr-field">Reply-To:</span>
@@ -151,8 +153,11 @@ export default function Page() {
                   <span className="rec-meta">{j.when}</span>
                   <div className="rec-stack">
                     <div className="job-head">
-                      <p className="job-title">{j.title}</p>
-                      <span className="rating">{j.rating}</span>
+                      <h3 className="job-title">{j.title}</h3>
+                      <span className="rating">
+                        <span className="sr-only">Rating </span>
+                        {j.rating}
+                      </span>
                     </div>
                     <blockquote className="quote">&ldquo;{j.quote}&rdquo;</blockquote>
                     <ul className="tags">
@@ -228,11 +233,11 @@ export default function Page() {
             <a className="replyto-link" href={MAILTO}>
               Request a deliverability audit
             </a>
-            <p className="close-line" style={{ marginTop: 'var(--s5)' }}>
-              Header values above are a demonstration of the artefact this page is built from, using
-              the domain {SENDING_DOMAIN}. They are not a claim about a client&rsquo;s current
+            <span className="close-line" style={{ marginTop: 'var(--s5)' }}>
+              The header values at the top demonstrate the artefact this page is built from, using
+              the domain {SENDING_DOMAIN}. They are not a claim about any client&rsquo;s current
               configuration.
-            </p>
+            </span>
           </div>
         </section>
       </main>
