@@ -55,8 +55,8 @@ export function HeroDeliverability() {
     <section className="relative overflow-hidden bg-term text-term-ink">
       <div className="term-halo absolute inset-0" aria-hidden="true" />
 
-      <div className="relative mx-auto w-full max-w-6xl px-4 pb-16 pt-16 sm:px-6 md:pb-20 md:pt-24">
-        <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
+      <div className="relative mx-auto w-full max-w-6xl px-4 pb-14 pt-14 sm:px-6 md:pb-16 md:pt-20">
+        <div className="grid items-center gap-10 lg:grid-cols-2">
           {/* Copy column */}
           <div>
             <p className="animate-rise inline-flex items-center gap-2 rounded-full border border-term-line bg-term-surface px-3.5 py-1.5">
@@ -103,7 +103,7 @@ export function HeroDeliverability() {
             </div>
 
             <dl
-              className="animate-rise mt-10 grid max-w-lg grid-cols-3 gap-4"
+              className="animate-rise mt-8 grid max-w-lg grid-cols-3 gap-4"
               style={{ animationDelay: "360ms" }}
             >
               {heroStats.map((stat) => (

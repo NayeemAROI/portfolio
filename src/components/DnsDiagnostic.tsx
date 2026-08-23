@@ -40,8 +40,8 @@ const records = [
 export function DnsDiagnostic() {
   return (
     <section className="scroll-mt-16 bg-term text-term-ink">
-      <div className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6 md:py-28">
-        <Reveal className="max-w-2xl">
+      <div className="mx-auto w-full max-w-6xl px-4 py-14 sm:px-6 md:py-20">
+        <Reveal className="mx-auto max-w-2xl text-center">
           <p className="font-mono text-xs uppercase tracking-[0.22em] text-delivered-bright">
             Diagnostic
           </p>
@@ -55,7 +55,7 @@ export function DnsDiagnostic() {
           </p>
         </Reveal>
 
-        <Reveal delay={120} className="mt-12">
+        <Reveal delay={120} className="mt-10">
           <div className="overflow-hidden rounded-2xl border border-term-line bg-term-surface shadow-term">
             <div className="flex items-center gap-2 border-b border-term-line px-4 py-3 font-mono text-xs text-term-muted">
               <span className="text-delivered-bright">$</span>
@@ -91,7 +91,7 @@ export function DnsDiagnostic() {
               ))}
             </ul>
           </div>
-          <p className="mt-4 font-mono text-[11px] text-term-muted">
+          <p className="mt-4 text-center font-mono text-[11px] text-term-muted">
             # if your records do not look like this, that is usually the whole problem.
           </p>
         </Reveal>

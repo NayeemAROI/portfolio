@@ -49,31 +49,33 @@ export default async function ServicePage({
     <>
       <section className="relative overflow-hidden bg-term text-term-ink">
         <div className="term-halo absolute inset-0" aria-hidden="true" />
-        <div className="relative mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 md:py-20">
-          <Link
-            href="/#services"
-            className="inline-flex items-center gap-1.5 font-mono text-xs text-term-muted transition-colors hover:text-delivered-bright"
-          >
-            <ArrowLeft className="size-3.5" />
-            All services
-          </Link>
+        <div className="relative mx-auto w-full max-w-6xl px-4 py-12 text-center sm:px-6 md:py-16">
+          <div className="flex justify-start">
+            <Link
+              href="/#services"
+              className="inline-flex items-center gap-1.5 font-mono text-xs text-term-muted transition-colors hover:text-delivered-bright"
+            >
+              <ArrowLeft className="size-3.5" />
+              All services
+            </Link>
+          </div>
           <p className="animate-rise mt-6 inline-block rounded border border-term-line bg-term-surface px-2.5 py-1 font-mono text-[11px] tracking-widest text-delivered-bright">
             {service.code}
           </p>
           <h1
-            className="animate-rise mt-4 max-w-3xl font-display text-3xl font-semibold leading-tight tracking-tight sm:text-4xl md:text-5xl"
+            className="animate-rise mx-auto mt-4 max-w-3xl font-display text-3xl font-semibold leading-tight tracking-tight sm:text-4xl md:text-5xl"
             style={{ animationDelay: "80ms" }}
           >
             {service.title}
           </h1>
           <p
-            className="animate-rise mt-4 max-w-2xl text-base text-term-muted sm:text-lg"
+            className="animate-rise mx-auto mt-4 max-w-2xl text-base text-term-muted sm:text-lg"
             style={{ animationDelay: "160ms" }}
           >
             {service.headline}
           </p>
           <div
-            className="animate-rise mt-6 flex flex-wrap gap-1.5"
+            className="animate-rise mt-6 flex flex-wrap justify-center gap-1.5"
             style={{ animationDelay: "240ms" }}
           >
             {service.tools.map((tool) => (
@@ -89,8 +91,8 @@ export default async function ServicePage({
       </section>
 
       <section className="bg-paper">
-        <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 md:py-20">
-          <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr]">
+        <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 md:py-16">
+          <div className="grid gap-10 lg:grid-cols-2">
             <Reveal>
               <h2 className="font-display text-2xl font-semibold tracking-tight">
                 What this covers
@@ -140,8 +142,8 @@ export default async function ServicePage({
             </Reveal>
           </div>
 
-          <Reveal className="mt-16">
-            <h2 className="font-display text-2xl font-semibold tracking-tight">
+          <Reveal className="mt-12">
+            <h2 className="text-center font-display text-2xl font-semibold tracking-tight">
               How it runs
             </h2>
             <div className="mt-6">
@@ -149,7 +151,7 @@ export default async function ServicePage({
             </div>
           </Reveal>
 
-          <Reveal className="mt-16">
+          <Reveal className="mt-12">
             <nav
               className="flex flex-col gap-3 border-t border-line pt-6 sm:flex-row sm:items-center sm:justify-between"
               aria-label="Service navigation"
@@ -184,9 +186,9 @@ export default async function ServicePage({
       </section>
 
       <section className="border-t border-line bg-paper-subtle">
-        <div className="mx-auto w-full max-w-6xl px-4 py-14 sm:px-6">
+        <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6">
           <Reveal>
-            <div className="flex flex-col items-start justify-between gap-4 rounded-2xl bg-term p-8 text-term-ink shadow-term sm:flex-row sm:items-center">
+            <div className="flex flex-col items-center justify-between gap-4 rounded-2xl bg-term p-8 text-center text-term-ink shadow-term sm:flex-row sm:text-left">
               <div>
                 <h2 className="font-display text-xl font-semibold tracking-tight">
                   Sound like your problem?
@@ -195,7 +197,7 @@ export default async function ServicePage({
                   Send the symptoms. You get a diagnosis, not a sales pitch.
                 </p>
               </div>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap justify-center gap-3">
                 <Link
                   href="/contact"
                   className="inline-flex items-center gap-2 rounded-xl bg-delivered px-4 py-2.5 font-semibold text-term transition-colors hover:bg-delivered-bright"

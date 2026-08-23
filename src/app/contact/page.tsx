@@ -19,7 +19,7 @@ export default function ContactPage() {
   return (
     <>
       <section className="paper-halo border-b border-line bg-paper">
-        <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 md:py-24">
+        <div className="mx-auto w-full max-w-6xl px-4 py-12 text-center sm:px-6 md:py-16">
           <p className="animate-rise font-mono text-xs uppercase tracking-[0.22em] text-delivered-ink">
             Contact
           </p>
@@ -30,14 +30,14 @@ export default function ContactPage() {
             Tell me where it hurts.
           </h1>
           <p
-            className="animate-rise mt-4 max-w-xl text-muted"
+            className="animate-rise mx-auto mt-4 max-w-xl text-muted"
             style={{ animationDelay: "160ms" }}
           >
             The more specifics you include, the faster the diagnosis. Useful
             details:
           </p>
           <ul
-            className="animate-rise mt-6 grid max-w-2xl gap-3 sm:grid-cols-2"
+            className="animate-rise mx-auto mt-6 grid max-w-2xl gap-3 text-left sm:grid-cols-2"
             style={{ animationDelay: "240ms" }}
           >
             {checklist.map((item) => (

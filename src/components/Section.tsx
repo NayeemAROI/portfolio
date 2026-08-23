@@ -25,8 +25,8 @@ export function Section({
         tone === "subtle" ? "bg-paper-subtle" : "bg-paper"
       }`}
     >
-      <div className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6 md:py-28">
-        <Reveal className="max-w-2xl">
+      <div className="mx-auto w-full max-w-6xl px-4 py-14 sm:px-6 md:py-20">
+        <Reveal className="mx-auto max-w-2xl text-center">
           <p className="font-mono text-xs uppercase tracking-[0.22em] text-delivered-ink">
             {eyebrow}
           </p>
@@ -35,7 +35,7 @@ export function Section({
           </h2>
           {intro ? <p className="mt-4 text-muted">{intro}</p> : null}
         </Reveal>
-        <div className="mt-12">{children}</div>
+        <div className="mt-10">{children}</div>
       </div>
     </section>
   );

@@ -26,9 +26,11 @@ export function ReviewsSection() {
       intro={`Every completed Upwork contract to date, quoted verbatim. ${site.stats.jss} Job Success Score.`}
     >
       <Reveal>
-        <figure className="rounded-card border border-line bg-card p-8 shadow-card md:p-10">
-          <Stars className="size-4" />
-          <blockquote className="mt-4 font-display text-2xl font-medium leading-snug tracking-tight md:text-3xl">
+        <figure className="rounded-card border border-line bg-card p-8 text-center shadow-card md:p-10">
+          <div className="flex justify-center">
+            <Stars className="size-4" />
+          </div>
+          <blockquote className="mx-auto mt-4 max-w-3xl font-display text-2xl font-medium leading-snug tracking-tight md:text-3xl">
             “{featured.quote}”
           </blockquote>
           <figcaption className="mt-4 font-mono text-xs uppercase tracking-[0.18em] text-muted">

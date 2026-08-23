@@ -29,7 +29,7 @@ export default function WorkPage() {
   return (
     <>
       <section className="paper-halo border-b border-line bg-paper">
-        <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 md:py-24">
+        <div className="mx-auto w-full max-w-6xl px-4 py-12 text-center sm:px-6 md:py-16">
           <p className="animate-rise font-mono text-xs uppercase tracking-[0.22em] text-delivered-ink">
             Work
           </p>
@@ -40,7 +40,7 @@ export default function WorkPage() {
             The receipts.
           </h1>
           <p
-            className="animate-rise mt-4 max-w-xl text-muted"
+            className="animate-rise mx-auto mt-4 max-w-xl text-muted"
             style={{ animationDelay: "160ms" }}
           >
             No mockups, no borrowed logos. Verified contract history and every
@@ -48,7 +48,7 @@ export default function WorkPage() {
           </p>
 
           <dl
-            className="animate-rise mt-10 grid max-w-2xl grid-cols-2 gap-6 sm:grid-cols-4"
+            className="animate-rise mx-auto mt-8 grid max-w-2xl grid-cols-2 gap-6 sm:grid-cols-4"
             style={{ animationDelay: "240ms" }}
           >
             {headlineStats.map((stat) => (
@@ -66,8 +66,8 @@ export default function WorkPage() {
       <PortfolioGallery />
 
       <section className="border-t border-line bg-paper-subtle">
-        <div className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6 md:py-28">
-          <Reveal className="max-w-2xl">
+        <div className="mx-auto w-full max-w-6xl px-4 py-14 sm:px-6 md:py-20">
+          <Reveal className="mx-auto max-w-2xl text-center">
             <p className="font-mono text-xs uppercase tracking-[0.22em] text-delivered-ink">
               Contract log
             </p>
@@ -76,7 +76,7 @@ export default function WorkPage() {
             </h2>
           </Reveal>
 
-          <ol className="mt-12 space-y-3">
+          <ol className="mt-10 space-y-3">
             {testimonials.map((review, i) => (
               <Reveal key={review.id} delay={Math.min(i * 50, 200)}>
                 <li className="rounded-card border border-line bg-card p-5 shadow-card sm:p-6">
@@ -104,7 +104,7 @@ export default function WorkPage() {
             ))}
           </ol>
 
-          <Reveal className="mt-10">
+          <Reveal className="mt-10 flex justify-center">
             <a
               href={links.upwork}
               target="_blank"
