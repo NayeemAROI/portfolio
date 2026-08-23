@@ -27,6 +27,8 @@
   --s8: 4.5rem;
   --s9: 7rem;
   --s10: 10rem;
+
+  --strip-h: 2.75rem;
 }
 
 *,
@@ -56,7 +58,9 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   caret-color: var(--pass);
-  overflow-x: hidden;
+  /* no overflow-x here on purpose: it creates a scroll container that
+     breaks position: sticky on .strip in several browsers. Overflow is
+     prevented by layout instead. */
 }
 
 /* --- browser surfaces: themed, not left default --- */
@@ -126,15 +130,24 @@ blockquote {
   margin-inline: auto;
 }
 
-.sr {
+/* skip link: hidden until focused, then a real visible control */
+.skip {
   position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
+  left: var(--s5);
+  top: 0;
+  transform: translateY(-120%);
+  z-index: 20;
+  background: var(--pass);
+  color: var(--ink);
+  border: 1px solid var(--ink);
+  padding: var(--s2) var(--s3);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.8125rem;
+  text-decoration: none;
+}
+
+.skip:focus-visible {
+  transform: translateY(var(--s2));
 }
 
 /* ============================================================
@@ -263,6 +276,9 @@ blockquote {
   padding: 0.3em 0.5em;
   text-decoration: none;
   border: 1px solid var(--ink);
+  display: inline-block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .replyto-link:hover,
@@ -317,6 +333,8 @@ blockquote {
 .sec {
   padding-block: var(--s9) var(--s8);
   border-bottom: 1px solid var(--rule);
+  /* anchor targets must clear the sticky strip */
+  scroll-margin-top: var(--strip-h);
 }
 
 .sec-dense {
@@ -481,6 +499,8 @@ h2 {
   color: var(--ink-2);
   display: block;
   margin-bottom: var(--s3);
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: var(--s2);
 }
 
 .vlist {
@@ -510,6 +530,8 @@ h2 {
   font-size: clamp(0.75rem, 1.4vw, 0.875rem);
   color: var(--ink-2);
   letter-spacing: 0.02em;
+  display: block;
+  max-width: 68ch;
 }
 
 .close-offer {
@@ -546,7 +568,8 @@ footer {
     clip-path: none;
   }
 
-  a {
+  a,
+  .skip {
     transition: none;
   }
 }
