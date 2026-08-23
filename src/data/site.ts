@@ -1,0 +1,20 @@
+export const site = {
+  name: "Nayeemur Rahman",
+  handle: "NayeemAROI",
+  role: "Email Deliverability Expert",
+  subRole: "Instantly, Apollo, Clay, Google Workspace, M365",
+  tagline: "Cold email that lands. Systems that scale.",
+  headline: "Want to boost your email open rates, reach the primary inbox, and fix SPF, DKIM, DMARC, or MX issues? Let's connect!",
+  bio: "I help businesses land emails in the primary inbox, optimize deliverability, and scale outbound infrastructure with zero guesswork.",
+  location: "Gazipur, Bangladesh",
+  timezone: "Asia/Dhaka (GMT+6)",
+  availability: "Open to offers — Responds in 0–4 hours",
+  stats: {
+    jss: "100%",
+    rating: "5.0",
+    completedJobs: "7",
+    totalJobs: "8",
+    idVerified: true,
+    topRated: true,
+  },
+} as const;
