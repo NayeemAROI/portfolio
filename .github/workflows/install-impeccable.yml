@@ -1,0 +1,45 @@
+name: Install Impeccable skill
+
+on:
+  push:
+    branches:
+      - install/impeccable-skill
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  install:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out installation branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.18.0
+
+      - name: Install Impeccable for Claude Code and Antigravity
+        run: npx -y impeccable@3.6.0 install -y --providers=claude,antigravity --scope=project --no-hooks
+
+      - name: Verify installed skills
+        run: |
+          test -f .claude/skills/impeccable/SKILL.md
+          test -f .agent/skills/impeccable/SKILL.md
+          grep -q '^name: impeccable$' .claude/skills/impeccable/SKILL.md
+          grep -q '^name: impeccable$' .agent/skills/impeccable/SKILL.md
+
+      - name: Commit generated skill files
+        run: |
+          rm -f .github/workflows/install-impeccable.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Install Impeccable skills for Claude and Antigravity'
+          git push origin HEAD:${{ github.ref_name }}
