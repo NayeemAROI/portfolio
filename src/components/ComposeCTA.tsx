@@ -1,258 +1,176 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useState, type FormEvent } from "react";
+import { Clock, MapPin, Send, ShieldCheck } from "lucide-react";
 import { site } from "@/data/site";
 import { links } from "@/data/links";
-import { services } from "@/data/services";
-import { Section } from "./Section";
 import { CopyEmail } from "@/components/CopyEmail";
-import { Send, ShieldCheck, Mail, ArrowUpRight, Clock, MapPin } from "lucide-react";
+import { Reveal } from "@/components/Reveal";
+
+const topics = [
+  "Deliverability rescue",
+  "Cold email infrastructure",
+  "Google Workspace / M365",
+  "B2B lead generation",
+  "WordPress support",
+  "Something else",
+] as const;
 
 export function ComposeCTA() {
-  const uid = useId();
-  const [handedOff, setHandedOff] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    service: "General deliverability and spam audit",
-    message: "",
-  });
+  const [name, setName] = useState("");
+  const [company, setCompany] = useState("");
+  const [topic, setTopic] = useState<string>(topics[0]);
+  const [message, setMessage] = useState("");
+  const [drafted, setDrafted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const subject = encodeURIComponent(
-      `Project inquiry: ${formData.service} (${formData.name})`
-    );
-    const body = encodeURIComponent(
-      `Name: ${formData.name}\nEmail: ${formData.email}\nService: ${formData.service}\n\nProject details:\n${formData.message}`
-    );
-    window.location.href = `mailto:${links.email}?subject=${subject}&body=${body}`;
-    setHandedOff(true);
+  const handleSend = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const subject = `${topic}: ${name || "new project"}`;
+    const bodyLines = [
+      message || "Hi Nayeemur,",
+      "",
+      `Name: ${name || "-"}`,
+      `Company: ${company || "-"}`,
+      `Topic: ${topic}`,
+    ];
+    window.location.href = `mailto:${links.email}?subject=${encodeURIComponent(
+      subject,
+    )}&body=${encodeURIComponent(bodyLines.join("\n"))}`;
+    setDrafted(true);
   };
 
   return (
-    <Section
-      id="contact"
-      eyebrow="COMPOSE-06 // GET IN TOUCH"
-      title="Let's fix your email deliverability"
-      intro="Domain authentication problems, a full Google Workspace or M365 setup, or cold outbound that needs to scale. Tell me which one you are dealing with."
-    >
-      <div className="mx-auto max-w-4xl grid gap-8 lg:grid-cols-[1fr_1.3fr] items-start">
-        {/* Left column: Direct contacts & meta */}
-        <div className="space-y-6">
-          <div>
-            <h3 className="font-display text-2xl font-bold tracking-tight text-ink">
-              Ready when you are.
-            </h3>
-            <p className="mt-2 text-sm leading-relaxed text-muted">
-              Describe the symptom — open rates dropping, emails landing in spam, a domain setup, or a migration. You get a direct, plain-language diagnosis and plan.
+    <section id="contact" className="paper-halo border-t border-line bg-paper">
+      <div className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6 md:py-28">
+        <div className="grid items-start gap-12 lg:grid-cols-[0.9fr_1.1fr]">
+          <Reveal>
+            <p className="font-mono text-xs uppercase tracking-[0.22em] text-delivered-ink">
+              Contact
             </p>
-          </div>
+            <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight md:text-4xl">
+              Ready when you are.
+            </h2>
+            <p className="mt-4 max-w-md text-muted">
+              Describe the symptom: open rates tanking, mail landing in spam, a
+              migration on the horizon. You get a plain-language diagnosis and a
+              plan, not jargon.
+            </p>
 
-          <ul className="space-y-3 font-mono text-xs text-ink/90">
-            <li className="flex items-center gap-2.5">
-              <Clock className="size-4 text-delivered-ink" />
-              <span>Responds in 0–4 hours (Dhaka GMT+6)</span>
-            </li>
-            <li className="flex items-center gap-2.5">
-              <MapPin className="size-4 text-delivered-ink" />
-              <span>{site.location}</span>
-            </li>
-            <li className="flex items-center gap-2.5">
-              <ShieldCheck className="size-4 text-delivered-ink" />
-              <span>100% Job Success Score on Upwork</span>
-            </li>
-          </ul>
+            <ul className="mt-8 space-y-3 text-sm">
+              <li className="flex items-center gap-3">
+                <Clock className="size-4 text-delivered" />
+                {site.availability}
+              </li>
+              <li className="flex items-center gap-3">
+                <MapPin className="size-4 text-delivered" />
+                {site.location} · {site.timezone}
+              </li>
+              <li className="flex items-center gap-3">
+                <ShieldCheck className="size-4 text-delivered" />
+                {site.stats.jss} Job Success · ID verified on Upwork
+              </li>
+            </ul>
 
-          <div className="flex flex-wrap gap-3 pt-2">
-            <CopyEmail />
-            <a
-              href={links.upwork}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-card px-3.5 py-2 font-mono text-xs font-medium text-ink shadow-2xs hover:border-muted transition"
-            >
-              <ShieldCheck className="size-3.5 text-delivered-ink" />
-              Hire on Upwork
-              <ArrowUpRight className="size-3 text-muted" />
-            </a>
-          </div>
-        </div>
-
-        {/* Right column: Compose form */}
-        <div className="border border-line bg-card rounded-2xl shadow-sm overflow-hidden">
-          <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-line bg-paper px-4 py-3 sm:px-6">
-            <span className="font-mono text-xs font-semibold text-ink">
-              New message // project brief
-            </span>
-            <span className="font-mono text-[11px] text-muted">{site.timezone}</span>
-          </div>
-
-          {handedOff ? (
-            <div className="p-6 sm:p-8 text-center">
-              <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-delivered/10 text-delivered-ink">
-                <Mail className="size-6" />
-              </div>
-              <h3 className="mt-4 font-display text-xl font-bold text-ink">
-                Your email client should be opening now
-              </h3>
-              <p className="mt-2 text-xs leading-relaxed text-muted max-w-md mx-auto">
-                The draft is prefilled with your message. If nothing opened, you can email directly or message on Upwork.
-              </p>
-
-              <div className="mt-6 flex flex-wrap justify-center gap-3">
-                <a
-                  href={`mailto:${links.email}`}
-                  className="inline-flex items-center gap-2 rounded-xl bg-delivered-ink px-4 py-2 font-mono text-xs font-semibold text-white transition-colors hover:bg-ink"
-                >
-                  <Mail className="size-3.5" />
-                  {links.email}
-                </a>
-                <a
-                  href={links.upwork}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-xl border border-line px-4 py-2 font-mono text-xs font-medium text-ink hover:bg-paper"
-                >
-                  <ShieldCheck className="size-3.5 text-delivered-ink" />
-                  Message on Upwork
-                </a>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setHandedOff(false)}
-                className="mt-6 font-mono text-xs text-muted underline hover:text-ink"
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <CopyEmail />
+              <a
+                href={links.upwork}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-lg bg-ink px-3.5 py-2 text-sm font-medium text-paper transition-colors hover:bg-delivered hover:text-term"
               >
-                Back to form
-              </button>
+                Hire on Upwork
+              </a>
             </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-4 p-4 sm:p-6">
-              <div className="flex flex-wrap items-baseline gap-x-3 border-b border-line/60 pb-2.5 font-mono text-xs">
-                <span className="text-muted">To:</span>
-                <span className="font-medium text-ink">
-                  {site.name}, {site.role}
+          </Reveal>
+
+          <Reveal delay={120}>
+            <form
+              onSubmit={handleSend}
+              className="overflow-hidden rounded-2xl border border-term-line bg-term text-term-ink shadow-term"
+            >
+              <div className="flex items-center gap-3 border-b border-term-line px-4 py-3">
+                <span className="flex gap-1.5">
+                  <span className="size-2.5 rounded-full bg-spam/70" />
+                  <span className="size-2.5 rounded-full bg-warm/70" />
+                  <span className="size-2.5 rounded-full bg-delivered/70" />
                 </span>
+                <span className="font-mono text-xs text-term-muted">New message</span>
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="flex flex-col gap-1">
-                  <label
-                    htmlFor={`${uid}-name`}
-                    className="font-mono text-xs text-muted"
-                  >
-                    Your name
+              <div className="space-y-3 px-4 py-4 sm:px-5">
+                <div className="flex items-center gap-2 border-b border-term-line pb-2.5">
+                  <span className="w-14 shrink-0 font-mono text-xs text-term-muted">To</span>
+                  <span className="rounded-md bg-delivered/15 px-2 py-0.5 font-mono text-xs text-delivered-bright">
+                    {links.email}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2 border-b border-term-line pb-2.5">
+                  <label htmlFor="cta-topic" className="w-14 shrink-0 font-mono text-xs text-term-muted">
+                    Subject
                   </label>
+                  <select
+                    id="cta-topic"
+                    value={topic}
+                    onChange={(e) => setTopic(e.target.value)}
+                    className="w-full bg-transparent text-sm text-term-ink outline-none [&>option]:bg-term"
+                  >
+                    {topics.map((t) => (
+                      <option key={t} value={t}>
+                        {t}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2">
                   <input
-                    id={`${uid}-name`}
-                    name="name"
                     type="text"
-                    required
-                    placeholder="Alex Morgan"
-                    autoComplete="name"
-                    value={formData.name}
-                    onChange={(e) =>
-                      setFormData({ ...formData, name: e.target.value })
-                    }
-                    className="rounded-lg border border-line bg-paper px-3 py-2 text-xs font-sans text-ink focus:border-delivered focus:outline-none"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Your name"
+                    aria-label="Your name"
+                    className="rounded-lg border border-term-line bg-term-surface px-3 py-2.5 text-sm text-term-ink placeholder:text-term-muted focus:border-delivered focus:outline-none"
                   />
-                </div>
-
-                <div className="flex flex-col gap-1">
-                  <label
-                    htmlFor={`${uid}-email`}
-                    className="font-mono text-xs text-muted"
-                  >
-                    Your email
-                  </label>
                   <input
-                    id={`${uid}-email`}
-                    name="email"
-                    type="email"
-                    required
-                    placeholder="alex@company.com"
-                    autoComplete="email"
-                    value={formData.email}
-                    onChange={(e) =>
-                      setFormData({ ...formData, email: e.target.value })
-                    }
-                    className="rounded-lg border border-line bg-paper px-3 py-2 text-xs font-sans text-ink focus:border-delivered focus:outline-none"
+                    type="text"
+                    value={company}
+                    onChange={(e) => setCompany(e.target.value)}
+                    placeholder="Company (optional)"
+                    aria-label="Company"
+                    className="rounded-lg border border-term-line bg-term-surface px-3 py-2.5 text-sm text-term-ink placeholder:text-term-muted focus:border-delivered focus:outline-none"
                   />
                 </div>
-              </div>
 
-              <div className="flex flex-col gap-1">
-                <label
-                  htmlFor={`${uid}-service`}
-                  className="font-mono text-xs text-muted"
-                >
-                  What you need
-                </label>
-                <select
-                  id={`${uid}-service`}
-                  name="service"
-                  value={formData.service}
-                  onChange={(e) =>
-                    setFormData({ ...formData, service: e.target.value })
-                  }
-                  className="rounded-lg border border-line bg-paper px-3 py-2 text-xs font-sans text-ink focus:border-delivered focus:outline-none"
-                >
-                  <option value="General deliverability and spam audit">
-                    General deliverability and spam audit
-                  </option>
-                  {services.map((s) => (
-                    <option key={s.id} value={s.title}>
-                      {s.title}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <label
-                  htmlFor={`${uid}-message`}
-                  className="font-mono text-xs text-muted"
-                >
-                  Domain and details
-                </label>
                 <textarea
-                  id={`${uid}-message`}
-                  name="message"
-                  rows={4}
-                  required
-                  placeholder="Sending domain, current open rates, spam issues, or migration requirements..."
-                  value={formData.message}
-                  onChange={(e) =>
-                    setFormData({ ...formData, message: e.target.value })
-                  }
-                  className="rounded-lg border border-line bg-paper p-3 text-xs font-sans text-ink focus:border-delivered focus:outline-none"
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="What's going on with your email? Domains, volume, tools, symptoms"
+                  aria-label="Message"
+                  rows={5}
+                  className="w-full resize-none rounded-lg border border-term-line bg-term-surface px-3 py-2.5 text-sm text-term-ink placeholder:text-term-muted focus:border-delivered focus:outline-none"
                 />
               </div>
 
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-line/60">
-                <a
-                  href={links.upwork}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 font-mono text-xs text-muted transition-colors hover:text-ink"
-                >
-                  Prefer Upwork? Message me there
-                  <ArrowUpRight className="size-3" aria-hidden="true" />
-                </a>
-
+              <div className="flex flex-wrap items-center justify-between gap-3 border-t border-term-line px-4 py-3.5 sm:px-5">
                 <button
                   type="submit"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-delivered-ink px-5 py-2.5 font-mono text-xs font-semibold text-white transition-colors hover:bg-ink cursor-pointer"
+                  className="inline-flex items-center gap-2 rounded-xl bg-delivered px-5 py-2.5 font-semibold text-term transition-all hover:-translate-y-0.5 hover:bg-delivered-bright"
                 >
-                  <Send className="size-3.5" aria-hidden="true" />
-                  Send brief
+                  <Send className="size-4" />
+                  Send it
                 </button>
+                <span className="font-mono text-[11px] text-term-muted">
+                  {drafted
+                    ? "Draft opened in your email app. Hit send there."
+                    : "Opens your email app. No trackers attached."}
+                </span>
               </div>
             </form>
-          )}
+          </Reveal>
         </div>
       </div>
-    </Section>
+    </section>
   );
 }

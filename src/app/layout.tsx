@@ -10,8 +10,8 @@ const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   title: {
-    default: `${site.name} — ${site.role}`,
-    template: `%s — ${site.name}`,
+    default: `${site.name} · ${site.role}`,
+    template: `%s · ${site.name}`,
   },
   description: site.headline,
   keywords: [
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: site.name, url: "https://github.com/NayeemAROI" }],
   openGraph: {
-    title: `${site.name} — ${site.role}`,
+    title: `${site.name} · ${site.role}`,
     description: site.headline,
     type: "website",
     locale: "en_US",
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: `${site.name} — ${site.role}`,
+    title: `${site.name} · ${site.role}`,
     description: site.headline,
   },
 };
