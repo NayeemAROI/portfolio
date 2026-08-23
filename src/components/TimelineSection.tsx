@@ -10,7 +10,7 @@ export function TimelineSection() {
       title="The long game."
       intro="Employment, certifications, and the education behind the work."
     >
-      <div className="grid gap-12 lg:grid-cols-[1.15fr_0.85fr]">
+      <div className="grid gap-10 lg:grid-cols-2">
         <Reveal>
           <ol className="relative border-l border-line pl-8">
             {experiences.map((item) => (

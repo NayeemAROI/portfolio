@@ -22,15 +22,15 @@ const iconMap: Record<string, LucideIcon> = {
 export function PostmasterStrip() {
   return (
     <section className="border-b border-line bg-paper-subtle">
-      <div className="mx-auto grid w-full max-w-6xl grid-cols-2 gap-px overflow-hidden px-4 py-10 sm:px-6 md:grid-cols-4 md:py-12">
+      <div className="mx-auto grid w-full max-w-6xl grid-cols-2 gap-px overflow-hidden px-4 py-8 sm:px-6 md:grid-cols-4 md:py-10">
         {proofMetrics.map((metric, i) => {
           const Icon = iconMap[metric.icon] ?? CheckCircle2;
           return (
-            <Reveal key={metric.id} delay={i * 80} className="p-4 md:p-5">
+            <Reveal key={metric.id} delay={i * 80} className="p-4 text-center md:p-5">
               <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted">
                 {metric.label}
               </span>
-              <p className="u-tabular mt-3 flex items-center gap-2 font-display text-3xl font-semibold tracking-tight">
+              <p className="u-tabular mt-3 flex items-center justify-center gap-2 font-display text-3xl font-semibold tracking-tight">
                 <Icon className="size-5 text-delivered" />
                 {metric.value}
               </p>

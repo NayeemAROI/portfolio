@@ -35,18 +35,18 @@ export default function AboutPage() {
   return (
     <>
       <section className="paper-halo border-b border-line bg-paper">
-        <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 md:py-24">
+        <div className="mx-auto w-full max-w-6xl px-4 py-12 text-center sm:px-6 md:py-16">
           <p className="animate-rise font-mono text-xs uppercase tracking-[0.22em] text-delivered-ink">
             About
           </p>
           <h1
-            className="animate-rise mt-3 max-w-3xl font-display text-4xl font-semibold leading-tight tracking-tight md:text-5xl"
+            className="animate-rise mx-auto mt-3 max-w-3xl font-display text-4xl font-semibold leading-tight tracking-tight md:text-5xl"
             style={{ animationDelay: "80ms" }}
           >
             Deliverability is a discipline. I treat it like one.
           </h1>
           <p
-            className="animate-rise mt-5 max-w-2xl leading-relaxed text-muted"
+            className="animate-rise mx-auto mt-5 max-w-2xl leading-relaxed text-muted"
             style={{ animationDelay: "160ms" }}
           >
             {site.bio} The work spans three tracks that reinforce each other:
@@ -56,7 +56,7 @@ export default function AboutPage() {
           </p>
 
           <ul
-            className="animate-rise mt-8 flex flex-wrap gap-3 text-sm"
+            className="animate-rise mt-8 flex flex-wrap justify-center gap-3 text-sm"
             style={{ animationDelay: "240ms" }}
           >
             <li className="inline-flex items-center gap-2 rounded-full border border-line bg-card px-3.5 py-1.5">
@@ -78,15 +78,15 @@ export default function AboutPage() {
       <TimelineSection />
 
       <section className="border-t border-line bg-paper-subtle">
-        <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 md:py-20">
-          <Reveal>
+        <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 md:py-16">
+          <Reveal className="text-center">
             <p className="font-mono text-xs uppercase tracking-[0.22em] text-delivered-ink">
               Daily drivers
             </p>
             <h2 className="mt-3 font-display text-2xl font-semibold tracking-tight md:text-3xl">
               The stack I actually work in.
             </h2>
-            <div className="mt-6 flex max-w-3xl flex-wrap gap-2">
+            <div className="mx-auto mt-6 flex max-w-3xl flex-wrap justify-center gap-2">
               {dailyDrivers.map((tool) => (
                 <span
                   key={tool}
@@ -96,13 +96,15 @@ export default function AboutPage() {
                 </span>
               ))}
             </div>
-            <Link
-              href="/contact"
-              className="mt-10 inline-flex items-center gap-2 rounded-xl bg-ink px-5 py-3 font-medium text-paper transition-colors hover:bg-delivered hover:text-term"
-            >
-              Work with me
-              <ArrowUpRight className="size-4" />
-            </Link>
+            <div className="mt-10 flex justify-center">
+              <Link
+                href="/contact"
+                className="inline-flex items-center gap-2 rounded-xl bg-ink px-5 py-3 font-medium text-paper transition-colors hover:bg-delivered hover:text-term"
+              >
+                Work with me
+                <ArrowUpRight className="size-4" />
+              </Link>
+            </div>
           </Reveal>
         </div>
       </section>

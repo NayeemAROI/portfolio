@@ -20,12 +20,13 @@ const iconMap: Record<string, LucideIcon> = {
   "web-support": Wrench,
 };
 
+/* Balanced rows: 3+3 on the first row, 2+2+2 on the second (desktop). */
 const spans = [
-  "md:col-span-6 lg:col-span-4",
+  "md:col-span-3 lg:col-span-3",
+  "md:col-span-3 lg:col-span-3",
   "md:col-span-3 lg:col-span-2",
   "md:col-span-3 lg:col-span-2",
-  "md:col-span-3 lg:col-span-2",
-  "md:col-span-3 lg:col-span-2",
+  "md:col-span-6 lg:col-span-2",
 ];
 
 export function ServicesSection() {
@@ -39,7 +40,6 @@ export function ServicesSection() {
       <div className="grid gap-4 md:grid-cols-6">
         {services.map((service, i) => {
           const Icon = iconMap[service.id] ?? ShieldCheck;
-          const flagship = i === 0;
           return (
             <Reveal key={service.id} delay={i * 70} className={spans[i]}>
               <Link
@@ -61,20 +61,6 @@ export function ServicesSection() {
                 <p className="mt-2 text-sm leading-relaxed text-muted">
                   {service.headline}
                 </p>
-
-                {flagship ? (
-                  <ul className="mt-4 hidden gap-x-6 gap-y-1.5 lg:grid lg:grid-cols-2">
-                    {service.deliverables.map((d) => (
-                      <li
-                        key={d}
-                        className="flex items-start gap-2 text-[13px] text-muted"
-                      >
-                        <span className="mt-1.5 size-1 shrink-0 rounded-full bg-delivered" />
-                        <span className="line-clamp-2">{d}</span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : null}
 
                 <div className="mt-auto flex flex-wrap gap-1.5 pt-5">
                   {service.tools.slice(0, 4).map((tool) => (

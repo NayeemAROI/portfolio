@@ -20,8 +20,8 @@ const elsewhere = [
 export function SiteFooter() {
   return (
     <footer className="border-t border-term-line bg-term text-term-ink">
-      <div className="mx-auto w-full max-w-6xl px-4 py-14 sm:px-6">
-        <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr]">
+      <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6">
+        <div className="grid gap-10 md:grid-cols-3">
           <div>
             <p className="font-display text-xl font-semibold tracking-tight">
               {site.name}
@@ -81,13 +81,13 @@ export function SiteFooter() {
           </nav>
         </div>
 
-        <div className="mt-12 overflow-x-auto rounded-lg border border-term-line bg-term-surface px-4 py-3">
+        <div className="mt-10 overflow-x-auto rounded-lg border border-term-line bg-term-surface px-4 py-3">
           <code className="whitespace-nowrap font-mono text-[11px] text-term-muted">
             nayeem._proof&nbsp;&nbsp;IN&nbsp;&nbsp;TXT&nbsp;&nbsp;&quot;v=PROOF1; jss=100%; rating=5.0; jobs=7/8; id=verified; ships=always&quot;
           </code>
         </div>
 
-        <div className="mt-8 flex flex-col items-start justify-between gap-3 border-t border-term-line pt-6 text-xs text-term-muted sm:flex-row sm:items-center">
+        <div className="mt-6 flex flex-col items-start justify-between gap-3 border-t border-term-line pt-5 text-xs text-term-muted sm:flex-row sm:items-center">
           <p>
             © {new Date().getFullYear()} {site.name} · {site.location}
           </p>

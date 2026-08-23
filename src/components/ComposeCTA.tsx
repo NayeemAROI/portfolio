@@ -41,8 +41,8 @@ export function ComposeCTA() {
 
   return (
     <section id="contact" className="paper-halo border-t border-line bg-paper">
-      <div className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6 md:py-28">
-        <div className="grid items-start gap-12 lg:grid-cols-[0.9fr_1.1fr]">
+      <div className="mx-auto w-full max-w-6xl px-4 py-14 sm:px-6 md:py-20">
+        <div className="grid items-start gap-10 lg:grid-cols-2">
           <Reveal>
             <p className="font-mono text-xs uppercase tracking-[0.22em] text-delivered-ink">
               Contact
