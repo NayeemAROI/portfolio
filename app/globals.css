@@ -1,0 +1,552 @@
+/* ============================================================
+   AUTH PASS — the built world.
+   Palette roles are fixed. Two rules break most often:
+     1. --pass (#FFB000) is 1.9:1 on --ground. NEVER type. Fill only.
+     2. --fail (#FF2E63) is 3.3:1 on --ground. Display size only.
+        Body-size fail labels use --fail-ink (5.4:1).
+   ============================================================ */
+
+:root {
+  --ground: #f4f5f7;
+  --ink: #000000;
+  --ink-2: #4a4f57;        /* cool slate, tinted from the ground. 7.5:1 */
+  --pass: #ffb000;         /* fill only */
+  --fail: #ff2e63;         /* display only */
+  --fail-ink: #c4183c;     /* body-size fail label */
+  --rule: #d3d7dd;
+  --rule-strong: #000000;
+
+  /* 4-unit spacing scale */
+  --s1: 0.25rem;
+  --s2: 0.5rem;
+  --s3: 0.75rem;
+  --s4: 1rem;
+  --s5: 1.5rem;
+  --s6: 2rem;
+  --s7: 3rem;
+  --s8: 4.5rem;
+  --s9: 7rem;
+  --s10: 10rem;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  font-size: 1rem;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  caret-color: var(--pass);
+  overflow-x: hidden;
+}
+
+/* --- browser surfaces: themed, not left default --- */
+
+::selection {
+  background: var(--pass);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ink-2) var(--ground);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--ground);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--ink-2);
+}
+
+a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  transition: background-color 120ms linear;
+}
+
+a:hover {
+  background: var(--pass);
+  text-decoration-color: transparent;
+}
+
+h1,
+h2,
+h3,
+p,
+ul,
+ol,
+figure,
+blockquote {
+  margin: 0;
+}
+
+/* --- primitives --- */
+
+.mono {
+  font-family: var(--font-mono), ui-monospace, "SFMono-Regular", monospace;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+.wrap {
+  width: min(1180px, calc(100% - 2 * var(--s5)));
+  margin-inline: auto;
+}
+
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ============================================================
+   FOLD — the header block IS the first viewport
+   ============================================================ */
+
+.fold {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-block: var(--s8) var(--s7);
+  border-bottom: 1px solid var(--rule-strong);
+}
+
+.hdr {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* every header line animates in from this staggered state */
+.line {
+  animation: resolve 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes resolve {
+  from {
+    opacity: 0;
+    transform: translateY(0.4em);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.hdr-field {
+  font-size: clamp(0.75rem, 1.4vw, 0.875rem);
+  letter-spacing: 0.02em;
+  color: var(--ink-2);
+  display: block;
+}
+
+.hdr-field b {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* the three verdicts: largest type on the page */
+.verdicts {
+  margin-block: var(--s6) var(--s7);
+  display: grid;
+  gap: var(--s4);
+}
+
+.verdict {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--s1);
+  align-items: baseline;
+}
+
+.verdict-main {
+  font-size: clamp(2.25rem, 9vw, 5.25rem);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.eq {
+  color: var(--ink-2);
+}
+
+/* amber is a FILL. the text on it is ink. */
+.stamp {
+  background: var(--pass);
+  color: var(--ink);
+  padding: 0 0.16em 0.04em;
+  display: inline-block;
+  animation: stamp 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes stamp {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+.verdict-meta {
+  font-size: clamp(0.75rem, 1.5vw, 0.9375rem);
+  color: var(--ink-2);
+  letter-spacing: 0.01em;
+  word-break: break-all;
+}
+
+.subject {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: clamp(1.375rem, 3.6vw, 2.5rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+  text-wrap: balance;
+  max-width: 30ch;
+  margin-top: var(--s2);
+}
+
+.replyto {
+  margin-top: var(--s6);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--s3);
+}
+
+.replyto-link {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: clamp(1rem, 2.4vw, 1.5rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  background: var(--pass);
+  color: var(--ink);
+  padding: 0.3em 0.5em;
+  text-decoration: none;
+  border: 1px solid var(--ink);
+}
+
+.replyto-link:hover,
+.replyto-link:focus-visible {
+  background: var(--ink);
+  color: var(--ground);
+}
+
+/* field-jump strip, appears after the fold — not a nav bar in the fold */
+.strip {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--ground);
+  border-bottom: 1px solid var(--rule-strong);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.strip ul {
+  display: flex;
+  gap: var(--s5);
+  list-style: none;
+  padding: var(--s3) 0;
+  margin: 0;
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none;
+}
+
+.strip ul::-webkit-scrollbar {
+  display: none;
+}
+
+.strip a {
+  text-decoration: none;
+  color: var(--ink-2);
+}
+
+.strip a:hover,
+.strip a:focus-visible {
+  color: var(--ink);
+  background: var(--pass);
+}
+
+/* ============================================================
+   SECTIONS
+   ============================================================ */
+
+.sec {
+  padding-block: var(--s9) var(--s8);
+  border-bottom: 1px solid var(--rule);
+}
+
+.sec-dense {
+  padding-block: var(--s9) var(--s7);
+}
+
+h2 {
+  font-size: clamp(1.625rem, 4.4vw, 2.75rem);
+  line-height: 1.08;
+  letter-spacing: -0.025em;
+  font-weight: 600;
+  max-width: 26ch;
+  text-wrap: balance;
+  margin-bottom: var(--s5);
+}
+
+.prose {
+  max-width: 68ch;
+  font-size: clamp(1rem, 1.6vw, 1.125rem);
+}
+
+.prose p + p {
+  margin-top: var(--s4);
+}
+
+.prose-quiet {
+  color: var(--ink-2);
+}
+
+.cite {
+  display: block;
+  margin-top: var(--s4);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.75rem;
+  color: var(--ink-2);
+  max-width: 68ch;
+}
+
+/* --- record rows: the page's structural grammar (no cards anywhere) --- */
+
+.records {
+  border-top: 1px solid var(--rule-strong);
+  margin-top: var(--s6);
+}
+
+.rec {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--s2);
+  padding-block: var(--s5);
+  border-bottom: 1px solid var(--rule);
+}
+
+.rec-key {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.rec-body {
+  font-size: 1rem;
+  max-width: 62ch;
+}
+
+.rec-fail {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.8125rem;
+  color: var(--fail-ink);
+  letter-spacing: 0.01em;
+  max-width: 62ch;
+}
+
+.rec-meta {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.75rem;
+  color: var(--ink-2);
+  letter-spacing: 0.02em;
+}
+
+@media (min-width: 900px) {
+  .rec {
+    grid-template-columns: minmax(0, 16rem) minmax(0, 1fr);
+    column-gap: var(--s6);
+    align-items: start;
+  }
+
+  .rec-stack {
+    display: grid;
+    gap: var(--s2);
+  }
+}
+
+/* --- engagements --- */
+
+.job-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2) var(--s4);
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.job-title {
+  font-size: clamp(1.0625rem, 2vw, 1.25rem);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  max-width: 46ch;
+}
+
+.quote {
+  border-left: 1px solid var(--ink);
+  padding-left: var(--s4);
+  margin-top: var(--s3);
+  max-width: 62ch;
+  font-size: 1rem;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s1) var(--s4);
+  list-style: none;
+  padding: 0;
+  margin-top: var(--s3);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.rating {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  background: var(--pass);
+  color: var(--ink);
+  padding: 0.1em 0.4em;
+}
+
+/* --- verified block --- */
+
+.verified {
+  display: grid;
+  gap: var(--s6);
+  margin-top: var(--s6);
+}
+
+@media (min-width: 760px) {
+  .verified {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--s8);
+  }
+}
+
+.vkey {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  display: block;
+  margin-bottom: var(--s3);
+}
+
+.vlist {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: var(--s3);
+}
+
+.vlist li {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.vlist b {
+  font-weight: 600;
+}
+
+/* --- close --- */
+
+.close {
+  padding-block: var(--s9) var(--s10);
+}
+
+.close-line {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: clamp(0.75rem, 1.4vw, 0.875rem);
+  color: var(--ink-2);
+  letter-spacing: 0.02em;
+}
+
+.close-offer {
+  font-size: clamp(1.5rem, 4.4vw, 2.75rem);
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  font-weight: 600;
+  max-width: 28ch;
+  text-wrap: balance;
+  margin-block: var(--s4) var(--s6);
+}
+
+footer {
+  border-top: 1px solid var(--rule-strong);
+  padding-block: var(--s5) var(--s7);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.75rem;
+  color: var(--ink-2);
+  letter-spacing: 0.02em;
+}
+
+/* ============================================================
+   REDUCED MOTION — fields arrive instantly.
+   Amber verdict colour stays: it carries state, and state survives.
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .line,
+  .stamp {
+    animation: none;
+  }
+
+  .stamp {
+    clip-path: none;
+  }
+
+  a {
+    transition: none;
+  }
+}
