@@ -6,26 +6,41 @@
   --color-ink: #101418;
   --color-muted: #5b6470;
   --color-line: #e3e1da;
+  --color-line-soft: #ecebe5;
   --color-card: #ffffff;
-  
+
   --color-term: #0b0e11;
   --color-term-surface: #13171d;
   --color-term-ink: #e8edf2;
   --color-term-muted: #828d99;
   --color-term-line: #1f252b;
-  
+
   --color-delivered: #1fa55a;
   --color-delivered-ink: #187f46;
   --color-delivered-bright: #34d07c;
+  --color-delivered-wash: #eaf6ee;
   --color-warm: #e8a13c;
   --color-spam: #e0533d;
-  
+
   --font-display: var(--font-bricolage), system-ui, sans-serif;
   --font-sans: var(--font-inter), system-ui, sans-serif;
   --font-mono: var(--font-jetbrains), monospace;
-  
+
   --radius-card: 14px;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
+
+/* ============================================================
+   CONTRAST NOTES (computed, not eyeballed)
+
+   White on --color-delivered   #1FA55A = 3.15:1  FAILS body text
+   White on --color-delivered-ink #187F46 = 5.07:1  passes
+
+   So: solid buttons use delivered-ink with white text. Plain
+   --color-delivered is a fill, a border, or large-text only. Getting
+   this backwards is the fastest way to fail AA while looking correct.
+   ============================================================ */
 
 @layer base {
   body {
@@ -35,10 +50,15 @@
     line-height: 1.65;
     -webkit-font-smoothing: antialiased;
   }
+
+  /* Anchor targets clear the sticky header. */
+  [id] {
+    scroll-margin-top: 5rem;
+  }
 }
 
 ::selection {
-  background-color: color-mix(in srgb, var(--color-delivered) 25%, transparent);
+  background-color: var(--color-delivered-wash);
   color: var(--color-ink);
 }
 
@@ -47,12 +67,108 @@
   outline-offset: 2px;
 }
 
+/* Form controls previously killed their own outline and signalled focus with
+   a border colour change only, which is a 1px cue that fails 3:1. */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--color-delivered);
+  outline-offset: 2px;
+  border-color: var(--color-delivered-ink);
+}
+
+/* ============================================================
+   SIGNATURE MOTIF: the inbox hero.
+   DESIGN.md motif 1 — value props arrive as email rows, 60ms stagger,
+   then the delivered check draws in. Plays once on load, never loops.
+   ============================================================ */
+
+@keyframes row-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes check-draw {
+  from {
+    stroke-dashoffset: 22;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes seal-arrive {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.inbox-row {
+  animation: row-arrive 240ms var(--ease-out-expo) both;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+
+.inbox-check {
+  stroke-dasharray: 22;
+  animation: check-draw 300ms var(--ease-out-expo) both;
+  /* lands after its own row has arrived */
+  animation-delay: calc(160ms + var(--i, 0) * 60ms);
+}
+
+.inbox-seal {
+  animation: seal-arrive 240ms var(--ease-out-expo) both;
+  animation-delay: 560ms;
+}
+
+/* ============================================================
+   REDUCED MOTION
+
+   DESIGN.md: "opacity-only transitions, static marquee." The previous
+   global 0.01ms !important kill wiped every transition on the page,
+   including state feedback on buttons and form controls. Reduced motion
+   means less movement, not no feedback.
+   ============================================================ */
+
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
+  html {
+    scroll-behavior: auto;
+  }
+
+  /* Movement is removed. Opacity fades stay, shortened. */
+  .inbox-row {
+    animation: seal-arrive 120ms linear both;
+    animation-delay: calc(var(--i, 0) * 30ms);
+  }
+
+  .inbox-check {
+    animation: none;
+    stroke-dasharray: none;
+  }
+
+  .inbox-seal {
+    animation-duration: 120ms;
+    animation-delay: 200ms;
+  }
+
+  /* Any decorative loop stops. State transitions survive. */
+  .animate-pulse,
+  .animate-ping,
+  .animate-bounce,
+  .animate-spin {
+    animation: none !important;
+  }
+
+  [class*="marquee"] {
+    animation: none !important;
   }
 }
 
