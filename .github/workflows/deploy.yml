@@ -1,0 +1,75 @@
+name: Build and deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Build
+        run: npm run build
+        env:
+          # Project pages serve at /<repo>/. Delete this line if you move to a
+          # custom domain or an apex user page.
+          PAGES_BASE_PATH: /${{ github.event.repository.name }}
+
+      - name: Assert the direction contract survived the build
+        run: |
+          grep -q 'THESIS:' out/index.html \
+            || { echo 'FAIL: direction contract missing from built markup'; exit 1; }
+          grep -q 'FINISH:' out/index.html \
+            || { echo 'FAIL: finish line missing from built markup'; exit 1; }
+          echo 'contract survived the build'
+
+      - name: Assert no deleted claim came back
+        run: |
+          for claim in '250+' '+32%' '3.1x' '4.6M' 'apexpipeline' 'Apex Pipeline'; do
+            if grep -qF "$claim" out/index.html; then
+              echo "FAIL: unsupportable claim present in build: $claim"
+              exit 1
+            fi
+          done
+          echo 'no retired claims in the build'
+
+      - name: Disable Jekyll
+        run: touch out/.nojekyll
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
