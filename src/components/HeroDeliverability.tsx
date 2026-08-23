@@ -3,233 +3,236 @@
 import { useState } from "react";
 import { site } from "@/data/site";
 import { links } from "@/data/links";
-import {
-  ShieldCheck,
-  CheckCircle2,
-  ArrowRight,
-  Terminal,
-  Mail,
-  Copy,
-  Check,
-  Sparkles,
-  Inbox,
-} from "lucide-react";
+import { ShieldCheck, ArrowRight, Mail, Copy, Check } from "lucide-react";
+
+/**
+ * Signature moment: DESIGN.md motif 1. Value props arrive as inbox rows on a
+ * 60ms stagger, each with its delivered check drawing in behind it, then the
+ * authentication seal lands. Plays once. No loop anywhere in this component.
+ *
+ * Every row states a capability, not a result. Rows are hairline-separated,
+ * not carded: the spec says borders over shadows, and cards inside a card are
+ * the thing this world exists to avoid.
+ */
+const INBOX_ROWS = [
+  {
+    record: "SPF / DKIM / DMARC",
+    outcome: "Authentication aligned end to end",
+    detail: "Alignment, not just presence. p=reject when the domain can carry it.",
+  },
+  {
+    record: "MX / DNS",
+    outcome: "Routing and records under control",
+    detail: "Cloudflare, GoDaddy, Namecheap, cPanel.",
+  },
+  {
+    record: "Workspace / M365",
+    outcome: "Tenants configured and migrated",
+    detail: "Mailbox migration without downtime.",
+  },
+  {
+    record: "Warmup / rotation",
+    outcome: "Sending inboxes kept healthy",
+    detail: "Pacing and rotation across sending accounts.",
+  },
+  {
+    record: "Instantly / Apollo / Clay",
+    outcome: "Campaign infrastructure that scales",
+    detail: "Sequences, enrichment, list hygiene before a send.",
+  },
+];
+
+/**
+ * Reference sample only. example.com is reserved by RFC 2606 precisely so it
+ * cannot be mistaken for a real domain, and no IP or selector is quoted. This
+ * demonstrates the shape of a passing result. It is not a client's audit.
+ */
+const SAMPLE_HEADER = `Authentication-Results: mx.google.com;
+  spf=pass       smtp.mailfrom=example.com;
+  dkim=pass      header.i=@example.com;
+  dmarc=pass     (p=REJECT sp=REJECT) header.from=example.com;`;
+
+function DeliveredCheck({ index }: { index: number }) {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      className="size-4 shrink-0"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path
+        className="inbox-check"
+        style={{ "--i": index } as React.CSSProperties}
+        d="M2.5 8.5 L6 12 L13.5 4"
+      />
+    </svg>
+  );
+}
 
 export function HeroDeliverability() {
   const [copied, setCopied] = useState(false);
-  const [activeTab, setActiveTab] = useState<"auth" | "raw">("auth");
 
-  const copyHeader = () => {
-    navigator.clipboard.writeText(
-      "Authentication-Results: mx.google.com; dkim=pass header.i=@outreach.domain.com; spf=pass (google.com: domain of nayeem@outreach.domain.com designates 209.85.220.41); dmarc=pass (p=REJECT) header.from=outreach.domain.com"
-    );
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const copyHeader = async () => {
+    try {
+      await navigator.clipboard.writeText(SAMPLE_HEADER);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard can be blocked by permissions policy. The sample is visible
+      // and selectable on the page, so failing quietly is the honest outcome:
+      // do not flash a success state for something that did not happen.
+    }
   };
 
   return (
-    <section className="relative overflow-hidden border-b border-line bg-paper pt-12 pb-16 md:pt-20 md:pb-24">
-      {/* Background subtle grid pattern */}
-      <div
-        className="pointer-events-none absolute inset-0 opacity-[0.03]"
-        style={{
-          backgroundImage: `radial-gradient(var(--color-ink) 1px, transparent 1px)`,
-          backgroundSize: "24px 24px",
-        }}
-      />
-
-      <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="grid gap-12 lg:grid-cols-12 lg:gap-8 lg:items-center">
-          
-          {/* Left Column: Core Positioning & Value Proposition */}
-          <div className="lg:col-span-7">
-            {/* Status Pill */}
-            <div className="inline-flex items-center gap-2 rounded-full border border-line bg-card px-3.5 py-1.5 shadow-2xs">
-              <span className="flex size-2 rounded-full bg-delivered animate-pulse" />
+    <section className="border-b border-line bg-paper pt-12 pb-16 md:pt-20 md:pb-24">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <div className="grid gap-14 lg:grid-cols-12 lg:items-start lg:gap-10">
+          {/* ---------- Positioning ---------- */}
+          <div className="lg:col-span-6">
+            <div className="inline-flex items-center gap-2 border border-line bg-card px-3 py-1.5">
+              <span className="size-2 rounded-full bg-delivered" />
               <span className="font-mono text-xs font-medium text-ink">
-                Available for New Client Projects
+                Available for new client work
               </span>
-              <span className="text-line">•</span>
-              <span className="font-mono text-xs text-muted">0–4h Response</span>
             </div>
 
-            {/* Main Headline */}
-            <h1 className="mt-5 font-display text-3xl font-extrabold tracking-tight text-ink sm:text-4xl md:text-5xl lg:leading-[1.15]">
-              Cold email that lands in the{" "}
-              <span className="relative whitespace-nowrap text-delivered-ink underline decoration-delivered/40 decoration-wavy underline-offset-4">
-                Primary Inbox
-              </span>
-              , not Spam.
+            <h1 className="mt-6 font-display text-4xl font-extrabold tracking-tight text-ink sm:text-5xl lg:text-[3.5rem] lg:leading-[1.05]">
+              Cold email that lands in the primary inbox, not spam.
             </h1>
 
-            {/* Sub-headline / Positioning Statement */}
-            <p className="mt-5 text-lg leading-relaxed text-muted sm:text-xl">
-              {site.headline}
+            <p className="mt-6 max-w-[62ch] text-lg leading-relaxed text-muted">
+              I configure, authenticate, and rescue outbound email
+              infrastructure. Authentication and DNS first, then the campaign
+              systems on top of it.
             </p>
 
-            <p className="mt-3 text-sm leading-relaxed text-ink/80">
-              I configure, authenticate, and rescue outbound email infrastructure. From full SPF/DKIM/DMARC alignment and Google Workspace/Microsoft 365 migrations to scalable Instantly/Apollo campaign architecture.
-            </p>
-
-            {/* CTAs */}
-            <div className="mt-8 flex flex-wrap items-center gap-3.5">
+            <div className="mt-9 flex flex-wrap items-center gap-3">
               <a
                 href="#contact"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-delivered px-5 py-3 font-mono text-xs font-semibold text-white shadow-sm transition hover:bg-delivered-ink active:scale-95"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-delivered-ink px-5 py-3 font-mono text-sm font-semibold text-white transition-colors hover:bg-ink"
               >
-                <Mail className="size-4" />
-                Get Deliverability Help
-                <ArrowRight className="size-4" />
+                <Mail className="size-4" aria-hidden="true" />
+                Get deliverability help
+                <ArrowRight className="size-4" aria-hidden="true" />
               </a>
 
               <a
                 href={links.upwork}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-line bg-card px-5 py-3 font-mono text-xs font-medium text-ink shadow-2xs transition hover:border-muted hover:bg-paper active:scale-95"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-line bg-card px-5 py-3 font-mono text-sm font-medium text-ink transition-colors hover:border-ink"
               >
-                <ShieldCheck className="size-4 text-delivered-ink" />
-                Hire on Upwork (100% JSS)
+                <ShieldCheck className="size-4 text-delivered-ink" aria-hidden="true" />
+                Hire on Upwork
               </a>
             </div>
 
-            {/* Fast Micro-Proofs */}
-            <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-line/80 pt-6 font-mono text-xs text-muted">
-              <div className="flex items-center gap-1.5">
-                <CheckCircle2 className="size-3.5 text-delivered-ink" />
-                <span>100% Job Success Score</span>
+            <dl className="mt-9 grid max-w-md grid-cols-3 gap-x-6 border-t border-line pt-6 font-mono text-xs">
+              <div>
+                <dt className="text-muted">Job success</dt>
+                <dd className="mt-0.5 text-base font-semibold text-ink">
+                  {site.stats.jss}
+                </dd>
               </div>
-              <div className="flex items-center gap-1.5">
-                <CheckCircle2 className="size-3.5 text-delivered-ink" />
-                <span>5.0 ★ Client Rating</span>
+              <div>
+                <dt className="text-muted">Rating</dt>
+                <dd className="mt-0.5 text-base font-semibold text-ink">
+                  {site.stats.rating}
+                </dd>
               </div>
-              <div className="flex items-center gap-1.5">
-                <CheckCircle2 className="size-3.5 text-delivered-ink" />
-                <span>ID & Identity Verified</span>
+              <div>
+                <dt className="text-muted">Jobs closed</dt>
+                <dd className="mt-0.5 text-base font-semibold text-ink">
+                  {site.stats.completedJobs}
+                </dd>
               </div>
-            </div>
+            </dl>
           </div>
 
-          {/* Right Column: Signature Deliverability Diagnostic Card */}
-          <div className="lg:col-span-5">
-            <div className="overflow-hidden rounded-2xl border border-term-line bg-term shadow-xl">
-              
-              {/* Terminal Window Header */}
-              <div className="flex items-center justify-between border-b border-term-line bg-term-surface px-4 py-2.5">
-                <div className="flex items-center gap-2">
-                  <div className="flex gap-1.5">
-                    <span className="size-2.5 rounded-full bg-spam/70" />
-                    <span className="size-2.5 rounded-full bg-warm/70" />
-                    <span className="size-2.5 rounded-full bg-delivered/70" />
-                  </div>
-                  <span className="font-mono text-[11px] text-term-muted">
-                    diagnostic://auth-results.mx
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setActiveTab(activeTab === "auth" ? "raw" : "auth")}
-                    className="font-mono text-[10px] text-term-muted hover:text-term-ink"
-                  >
-                    [{activeTab.toUpperCase()}]
-                  </button>
-                  <button
-                    onClick={copyHeader}
-                    className="text-term-muted transition hover:text-term-ink"
-                    title="Copy Header Record"
-                  >
-                    {copied ? (
-                      <Check className="size-3.5 text-delivered-bright" />
-                    ) : (
-                      <Copy className="size-3.5" />
-                    )}
-                  </button>
-                </div>
+          {/* ---------- The inbox: signature moment ---------- */}
+          <div className="lg:col-span-6">
+            <div className="border border-line bg-card">
+              <div className="flex items-baseline justify-between border-b border-line px-4 py-3">
+                <span className="font-mono text-[11px] tracking-wider text-muted uppercase">
+                  What arrives when this is done right
+                </span>
+                <span className="font-mono text-[11px] text-delivered-ink">5 / 5</span>
               </div>
 
-              {/* Status Header Badge */}
-              <div className="flex items-center justify-between border-b border-term-line/60 bg-term/90 px-4 py-3">
+              <ul className="divide-y divide-line-soft">
+                {INBOX_ROWS.map((row, i) => (
+                  <li
+                    key={row.record}
+                    className="inbox-row flex gap-3 px-4 py-3.5"
+                    style={{ "--i": i } as React.CSSProperties}
+                  >
+                    <span className="mt-0.5 text-delivered-ink">
+                      <DeliveredCheck index={i} />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block font-mono text-[11px] tracking-wide text-muted">
+                        {row.record}
+                      </span>
+                      <span className="mt-0.5 block text-[15px] font-medium text-ink">
+                        {row.outcome}
+                      </span>
+                      <span className="mt-0.5 block text-[13px] leading-relaxed text-muted">
+                        {row.detail}
+                      </span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+
+              {/* the seal lands after the last row */}
+              <div className="inbox-seal border-t border-line bg-delivered-wash px-4 py-3">
                 <div className="flex items-center gap-2">
-                  <span className="flex size-2 rounded-full bg-delivered-bright animate-ping" />
-                  <span className="font-mono text-xs font-bold text-delivered-bright">
-                    AUTHENTICATION: PASS
+                  <ShieldCheck className="size-4 text-delivered-ink" aria-hidden="true" />
+                  <span className="font-mono text-xs font-semibold text-delivered-ink">
+                    Authentication: pass
                   </span>
-                </div>
-                <div className="flex items-center gap-1.5 rounded bg-delivered/20 px-2 py-0.5 font-mono text-[10px] text-delivered-bright">
-                  <Inbox className="size-3" />
-                  PRIMARY INBOX
-                </div>
-              </div>
-
-              {/* Diagnostic Rows */}
-              <div className="p-4 font-mono text-xs">
-                {activeTab === "auth" ? (
-                  <div className="space-y-2.5">
-                    {/* SPF Row */}
-                    <div className="rounded-lg border border-term-line bg-term-surface/50 p-2.5">
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-delivered-bright">SPF // PASS</span>
-                        <span className="text-[10px] text-term-muted">ip4:209.85.220.41</span>
-                      </div>
-                      <p className="mt-1 text-[11px] text-term-muted leading-relaxed">
-                        Designated Google Workspace server authorized for domain sending.
-                      </p>
-                    </div>
-
-                    {/* DKIM Row */}
-                    <div className="rounded-lg border border-term-line bg-term-surface/50 p-2.5">
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-delivered-bright">DKIM // 2048-BIT PASS</span>
-                        <span className="text-[10px] text-term-muted">s=google d=outreach</span>
-                      </div>
-                      <p className="mt-1 text-[11px] text-term-muted leading-relaxed">
-                        Cryptographic signature verified with zero header tampering.
-                      </p>
-                    </div>
-
-                    {/* DMARC Row */}
-                    <div className="rounded-lg border border-term-line bg-term-surface/50 p-2.5">
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-delivered-bright">DMARC // ALIGNED (p=reject)</span>
-                        <span className="text-[10px] text-term-muted">100% Policy</span>
-                      </div>
-                      <p className="mt-1 text-[11px] text-term-muted leading-relaxed">
-                        Strict policy prevents domain spoofing & protects sender domain.
-                      </p>
-                    </div>
-
-                    {/* MX & Postmaster */}
-                    <div className="grid grid-cols-2 gap-2 pt-1">
-                      <div className="rounded-lg border border-term-line bg-term-surface/50 p-2">
-                        <span className="text-[10px] text-term-muted block">MX ROUTING</span>
-                        <span className="text-[11px] font-bold text-term-ink">0 Google MX</span>
-                      </div>
-                      <div className="rounded-lg border border-term-line bg-term-surface/50 p-2">
-                        <span className="text-[10px] text-term-muted block">POSTMASTER</span>
-                        <span className="text-[11px] font-bold text-delivered-bright">High Rep</span>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="overflow-x-auto rounded bg-term-surface p-3 text-[11px] leading-relaxed text-term-muted font-mono whitespace-pre-wrap">
-                    {`Authentication-Results: mx.google.com;
-  dkim=pass header.i=@outreach.domain.com header.s=google;
-  spf=pass (google.com: domain of nayeem@outreach.domain.com designates 209.85.220.41 as permitted sender);
-  dmarc=pass (p=REJECT sp=REJECT dis=none) header.from=outreach.domain.com;
-  Received-SPF: pass client-ip=209.85.220.41;
-  X-Google-Smtp-Source: AUTHENTICATED/VERIFIED;`}
-                  </div>
-                )}
-
-                <div className="mt-4 flex items-center justify-between border-t border-term-line/80 pt-3 text-[11px] text-term-muted">
-                  <span>Audit Engine: NayeemAROI</span>
-                  <span className="text-delivered-bright">100% Delivery Confidence</span>
                 </div>
               </div>
             </div>
-          </div>
 
+            {/* Reference sample, labelled before it is read. */}
+            <figure className="mt-4">
+              <figcaption className="flex items-center justify-between gap-3">
+                <span className="font-mono text-[11px] tracking-wider text-muted uppercase">
+                  Reference sample · not a client result
+                </span>
+                <button
+                  type="button"
+                  onClick={copyHeader}
+                  className="inline-flex items-center gap-1.5 border border-line bg-card px-2 py-1 font-mono text-[11px] text-muted transition-colors hover:text-ink"
+                >
+                  {copied ? (
+                    <>
+                      <Check className="size-3 text-delivered-ink" aria-hidden="true" />
+                      Copied
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="size-3" aria-hidden="true" />
+                      Copy
+                    </>
+                  )}
+                </button>
+              </figcaption>
+              <pre className="mt-2 overflow-x-auto border border-term-line bg-term p-3 font-mono text-[11px] leading-relaxed text-term-ink">
+                {SAMPLE_HEADER}
+              </pre>
+              <p className="mt-2 font-mono text-[11px] leading-relaxed text-muted">
+                example.com is a reserved domain (RFC 2606). This shows the
+                shape of a passing result, not any client&rsquo;s configuration.
+              </p>
+            </figure>
+          </div>
         </div>
       </div>
     </section>
