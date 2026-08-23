@@ -1,119 +1,99 @@
-import { experiences, certifications, education } from "@/data/timeline";
-import { Section } from "./Section";
-import { Briefcase, Award, GraduationCap, CheckCircle2 } from "lucide-react";
+import { Award, GraduationCap, Languages } from "lucide-react";
+import { certifications, education, experiences } from "@/data/timeline";
+import { Section } from "@/components/Section";
+import { Reveal } from "@/components/Reveal";
 
 export function TimelineSection() {
   return (
     <Section
-      id="experience"
-      eyebrow="HISTORY-05 // CREDENTIALS & EXPERIENCE"
-      title="Background & Certifications"
-      description="Proven domain experience in B2B lead generation, deliverability systems, web development, and certified LinkedIn marketing."
+      eyebrow="Track record"
+      title="The long game."
+      intro="Employment, certifications, and the education behind the work."
     >
-      <div className="grid gap-8 lg:grid-cols-12">
-        
-        {/* Work Experience (Left 7 cols) */}
-        <div className="lg:col-span-7">
-          <div className="flex items-center gap-2 mb-6">
-            <Briefcase className="size-4 text-delivered-ink" />
-            <h3 className="font-display text-lg font-bold text-ink">
-              Employment History
-            </h3>
-          </div>
-
-          <div className="space-y-6 border-l-2 border-line pl-4 sm:pl-6">
-            {experiences.map((exp, i) => (
-              <div key={i} className="relative">
-                {/* Dot */}
-                <div className="absolute -left-[21px] sm:-left-[29px] top-1.5 size-2.5 rounded-full border-2 border-paper bg-delivered" />
-
-                <div>
-                  <div className="flex flex-wrap items-baseline justify-between gap-2">
-                    <h4 className="font-sans text-sm font-bold text-ink">
-                      {exp.role}
-                    </h4>
-                    <span className="font-mono text-xs text-muted">
-                      {exp.period}
-                    </span>
-                  </div>
-
-                  <span className="font-mono text-xs text-delivered-ink font-semibold block mt-0.5">
-                    {exp.organization}
-                  </span>
-
-                  <p className="mt-2 text-xs leading-relaxed text-muted">
-                    {exp.description}
-                  </p>
-                </div>
-              </div>
+      <div className="grid gap-12 lg:grid-cols-[1.15fr_0.85fr]">
+        <Reveal>
+          <ol className="relative border-l border-line pl-8">
+            {experiences.map((item) => (
+              <li key={item.role} className="relative pb-10 last:pb-0">
+                <span className="absolute -left-[37px] top-1.5 size-2.5 rounded-full bg-delivered ring-4 ring-paper" />
+                <p className="font-mono text-xs text-muted">{item.period}</p>
+                <h3 className="mt-1 font-display text-lg font-semibold tracking-tight">
+                  {item.role}
+                </h3>
+                <p className="font-mono text-xs uppercase tracking-[0.16em] text-delivered-ink">
+                  {item.organization}
+                </p>
+                <p className="mt-2 max-w-lg text-sm leading-relaxed text-muted">
+                  {item.description}
+                </p>
+              </li>
             ))}
-          </div>
-        </div>
+          </ol>
+        </Reveal>
 
-        {/* Certifications & Education (Right 5 cols) */}
-        <div className="space-y-8 lg:col-span-5">
-          
-          {/* Certifications */}
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <Award className="size-4 text-delivered-ink" />
-              <h3 className="font-display text-lg font-bold text-ink">
-                Verified Certifications
-              </h3>
+        <div className="space-y-4">
+          <Reveal delay={80}>
+            <div className="rounded-card border border-line bg-card p-6 shadow-card">
+              <p className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.2em] text-muted">
+                <Award className="size-4 text-delivered" />
+                Certifications
+              </p>
+              <ul className="mt-4 space-y-4">
+                {certifications.map((cert) => (
+                  <li key={cert.title} className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-medium">{cert.title}</p>
+                      <p className="text-xs text-muted">
+                        {cert.issuer} · {cert.period}
+                      </p>
+                    </div>
+                    {cert.verified ? (
+                      <span className="rounded border border-delivered/30 bg-delivered/10 px-1.5 py-0.5 font-mono text-[9px] font-semibold tracking-wider text-delivered-ink">
+                        VERIFIED
+                      </span>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
             </div>
+          </Reveal>
 
-            <div className="space-y-3">
-              {certifications.map((cert, i) => (
-                <div
-                  key={i}
-                  className="rounded-xl border border-line bg-card p-4 shadow-2xs"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-sans text-xs font-bold text-ink">
-                      {cert.title}
-                    </span>
-                    <span className="inline-flex items-center gap-1 font-mono text-[10px] text-delivered-ink">
-                      <CheckCircle2 className="size-3" />
-                      VERIFIED
-                    </span>
-                  </div>
-                  <div className="mt-1 flex items-center justify-between font-mono text-[11px] text-muted">
-                    <span>Issuer: {cert.issuer}</span>
-                    <span>{cert.period}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Education */}
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <GraduationCap className="size-4 text-delivered-ink" />
-              <h3 className="font-display text-lg font-bold text-ink">
+          <Reveal delay={160}>
+            <div className="rounded-card border border-line bg-card p-6 shadow-card">
+              <p className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.2em] text-muted">
+                <GraduationCap className="size-4 text-delivered" />
                 Education
-              </h3>
+              </p>
+              <ul className="mt-4 space-y-4">
+                {education.map((item) => (
+                  <li key={item.degree}>
+                    <p className="text-sm font-medium">{item.degree}</p>
+                    <p className="text-xs text-muted">{item.institution}</p>
+                  </li>
+                ))}
+              </ul>
             </div>
+          </Reveal>
 
-            <div className="space-y-3">
-              {education.map((edu, i) => (
-                <div
-                  key={i}
-                  className="rounded-xl border border-line bg-card p-4 shadow-2xs"
-                >
-                  <span className="font-sans text-xs font-bold text-ink block">
-                    {edu.degree}
-                  </span>
-                  <span className="mt-1 font-mono text-[11px] text-muted block">
-                    {edu.institution}
-                  </span>
-                </div>
-              ))}
+          <Reveal delay={240}>
+            <div className="rounded-card border border-line bg-card p-6 shadow-card">
+              <p className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.2em] text-muted">
+                <Languages className="size-4 text-delivered" />
+                Languages
+              </p>
+              <ul className="mt-4 space-y-2 text-sm">
+                <li className="flex items-center justify-between">
+                  <span>English</span>
+                  <span className="font-mono text-xs text-muted">Fluent</span>
+                </li>
+                <li className="flex items-center justify-between">
+                  <span>Bengali</span>
+                  <span className="font-mono text-xs text-muted">Native</span>
+                </li>
+              </ul>
             </div>
-          </div>
-
+          </Reveal>
         </div>
-
       </div>
     </Section>
   );

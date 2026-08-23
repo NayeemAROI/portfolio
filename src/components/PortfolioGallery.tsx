@@ -1,81 +1,65 @@
 import { portfolioCases } from "@/data/portfolio";
-import { Section } from "./Section";
-import { CheckCircle2, ShieldCheck, Mail, Globe, ArrowRight } from "lucide-react";
+import { Section } from "@/components/Section";
+import { Reveal } from "@/components/Reveal";
+
+const dotColor: Record<string, string> = {
+  Deliverability: "bg-delivered",
+  "Cold Email": "bg-warm",
+  "Web Development": "bg-ink",
+};
 
 export function PortfolioGallery() {
-  const getCategoryIcon = (cat: string) => {
-    switch (cat) {
-      case "Deliverability":
-        return <ShieldCheck className="size-4 text-delivered-ink" />;
-      case "Cold Email":
-        return <Mail className="size-4 text-delivered-ink" />;
-      case "Web Development":
-        return <Globe className="size-4 text-delivered-ink" />;
-      default:
-        return <CheckCircle2 className="size-4 text-delivered-ink" />;
-    }
-  };
-
   return (
     <Section
-      id="portfolio"
-      eyebrow="CASE-03 // VERIFIED WORK"
-      title="Featured Deliverables"
-      description="Proven results across email security authentication, outbound cold campaign setup, and full-stack WordPress systems."
+      eyebrow="Case work"
+      title="Shipped systems, not slides."
+      intro="Three lanes of delivery work, each with the outcome that mattered."
     >
-      <div className="grid gap-6 md:grid-cols-3">
-        {portfolioCases.map((item) => (
-          <div
-            key={item.id}
-            className="flex flex-col justify-between rounded-2xl border border-line bg-card p-6 shadow-2xs transition hover:-translate-y-1 hover:border-muted hover:shadow-md"
-          >
-            <div>
-              {/* Category tag */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5 rounded-full border border-line bg-paper px-2.5 py-0.5 font-mono text-[10px] font-medium text-ink">
-                  {getCategoryIcon(item.category)}
-                  <span>{item.category}</span>
-                </div>
-                <span className="font-mono text-[10px] text-delivered-ink font-semibold">
-                  COMPLETED
-                </span>
-              </div>
-
-              {/* Title */}
-              <h3 className="mt-4 font-display text-lg font-bold tracking-tight text-ink">
+      <div className="grid gap-4 md:grid-cols-3">
+        {portfolioCases.map((item, i) => (
+          <Reveal key={item.id} delay={i * 90}>
+            <article className="flex h-full flex-col rounded-card border border-line bg-card p-6 shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-lift">
+              <p className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-muted">
+                <span
+                  className={`size-1.5 rounded-full ${dotColor[item.category] ?? "bg-delivered"}`}
+                />
+                {item.category}
+              </p>
+              <h3 className="mt-3 font-display text-lg font-semibold leading-snug tracking-tight">
                 {item.title}
               </h3>
-
-              {/* Summary */}
-              <p className="mt-2 text-xs leading-relaxed text-muted">
+              <p className="mt-2 flex-1 text-sm leading-relaxed text-muted">
                 {item.summary}
               </p>
 
-              {/* Metrics pill */}
-              <div className="mt-4 grid grid-cols-2 gap-2 rounded-xl border border-line/60 bg-paper/70 p-2.5 font-mono text-xs">
-                {item.metrics.map((m, i) => (
-                  <div key={i}>
-                    <span className="text-[10px] text-muted block">{m.label}</span>
-                    <span className="font-bold text-ink text-[11px]">{m.value}</span>
+              <dl className="mt-5 space-y-2 border-t border-line pt-4">
+                {item.metrics.map((metric) => (
+                  <div
+                    key={metric.label}
+                    className="flex items-center justify-between gap-3"
+                  >
+                    <dt className="font-mono text-[11px] uppercase tracking-wide text-muted">
+                      {metric.label}
+                    </dt>
+                    <dd className="u-tabular font-mono text-xs font-semibold text-delivered-ink">
+                      {metric.value}
+                    </dd>
                   </div>
                 ))}
-              </div>
-            </div>
+              </dl>
 
-            {/* Tags footer */}
-            <div className="mt-5 border-t border-line/60 pt-3">
-              <div className="flex flex-wrap gap-1">
-                {item.tags.map((t, i) => (
+              <div className="mt-4 flex flex-wrap gap-1.5">
+                {item.tags.map((tag) => (
                   <span
-                    key={i}
-                    className="rounded bg-paper px-1.5 py-0.5 font-mono text-[10px] text-muted border border-line/40"
+                    key={tag}
+                    className="rounded-md bg-paper-subtle px-2 py-0.5 font-mono text-[10px] text-muted"
                   >
-                    #{t}
+                    {tag}
                   </span>
                 ))}
               </div>
-            </div>
-          </div>
+            </article>
+          </Reveal>
         ))}
       </div>
     </Section>

@@ -1,99 +1,70 @@
+import { Star } from "lucide-react";
 import { testimonials } from "@/data/testimonials";
-import { links } from "@/data/links";
-import { Section } from "./Section";
-import { Star, ShieldCheck, ArrowUpRight, Quote } from "lucide-react";
+import { site } from "@/data/site";
+import { Section } from "@/components/Section";
+import { Reveal } from "@/components/Reveal";
+
+function Stars({ className = "size-3.5" }: { className?: string }) {
+  return (
+    <span className="flex gap-0.5" aria-label="5.0 out of 5 stars">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <Star key={i} className={`${className} fill-warm text-warm`} />
+      ))}
+    </span>
+  );
+}
 
 export function ReviewsSection() {
+  const featured = testimonials[2];
+  const rest = testimonials.filter((_, i) => i !== 2);
+
   return (
     <Section
-      id="reviews"
-      eyebrow="FEEDBACK-04 // UPWORK CLIENT REVIEWS"
-      title="100% 5.0 ★ Client Satisfaction"
-      description="Verbatim reviews from verified clients on Upwork across deliverability, cold outreach, and web development projects."
+      tone="subtle"
+      eyebrow="Client feedback"
+      title="Seven contracts. Seven 5.0s."
+      intro={`Every completed Upwork contract to date, quoted verbatim. ${site.stats.jss} Job Success Score.`}
     >
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {testimonials.map((item) => (
-          <div
-            key={item.id}
-            className="flex flex-col justify-between rounded-2xl border border-line bg-card p-6 shadow-2xs transition hover:border-muted hover:shadow-sm"
-          >
-            <div>
-              {/* Star Rating & Verified Badge */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className="size-3.5 fill-warm text-warm"
-                    />
-                  ))}
-                  <span className="ml-1 font-mono text-xs font-bold text-ink">
-                    5.0
-                  </span>
-                </div>
+      <Reveal>
+        <figure className="rounded-card border border-line bg-card p-8 shadow-card md:p-10">
+          <Stars className="size-4" />
+          <blockquote className="mt-4 font-display text-2xl font-medium leading-snug tracking-tight md:text-3xl">
+            “{featured.quote}”
+          </blockquote>
+          <figcaption className="mt-4 font-mono text-xs uppercase tracking-[0.18em] text-muted">
+            {featured.project} · {featured.rating.toFixed(1)} rating
+          </figcaption>
+        </figure>
+      </Reveal>
 
-                <span className="inline-flex items-center gap-1 font-mono text-[10px] text-delivered-ink font-semibold">
-                  <ShieldCheck className="size-3" />
-                  VERIFIED
-                </span>
-              </div>
-
-              {/* Quote */}
-              <div className="relative mt-4">
-                <Quote className="absolute -top-1 -left-1 size-5 text-line -z-0 opacity-50" />
-                <p className="relative z-10 text-sm leading-relaxed text-ink/90 font-medium italic">
-                  &ldquo;{item.quote}&rdquo;
+      <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {rest.map((review, i) => (
+          <Reveal key={review.id} delay={i * 60}>
+            <figure className="flex h-full flex-col rounded-card border border-line bg-card p-6 shadow-card">
+              <Stars />
+              <blockquote className="mt-3 flex-1 text-sm leading-relaxed">
+                “{review.quote}”
+              </blockquote>
+              <figcaption className="mt-4 border-t border-line pt-3">
+                <p className="font-mono text-[11px] uppercase tracking-wide text-muted">
+                  {review.project}
                 </p>
-              </div>
-            </div>
-
-            {/* Project info footer */}
-            <div className="mt-5 border-t border-line/60 pt-3">
-              <span className="font-mono text-[11px] font-semibold text-ink block">
-                Project: {item.project}
-              </span>
-              {item.tags && (
-                <div className="mt-2 flex flex-wrap gap-1">
-                  {item.tags.map((t, i) => (
-                    <span
-                      key={i}
-                      className="rounded bg-paper px-1.5 py-0.5 font-mono text-[9px] text-muted border border-line/40"
-                    >
-                      {t}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
+                {review.tags ? (
+                  <p className="mt-2 flex flex-wrap gap-1.5">
+                    {review.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="rounded-md bg-paper-subtle px-2 py-0.5 font-mono text-[10px] text-muted"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </p>
+                ) : null}
+              </figcaption>
+            </figure>
+          </Reveal>
         ))}
-      </div>
-
-      {/* Upwork Profile Proof Bar */}
-      <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 rounded-xl border border-delivered/30 bg-delivered/5 p-4 sm:p-5">
-        <div className="flex items-center gap-3">
-          <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-delivered text-white">
-            <ShieldCheck className="size-5" />
-          </div>
-          <div>
-            <span className="font-sans text-sm font-bold text-ink">
-              All reviews are publicly verified on Upwork
-            </span>
-            <span className="block font-sans text-xs text-muted">
-              100% Job Success Score • ID Verified • Top Rated Freelancer
-            </span>
-          </div>
-        </div>
-
-        <a
-          href={links.upwork}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 rounded-lg bg-card px-4 py-2 font-mono text-xs font-semibold text-ink border border-line shadow-2xs hover:border-muted transition whitespace-nowrap"
-        >
-          View Live Upwork Profile
-          <ArrowUpRight className="size-3.5 text-muted" />
-        </a>
       </div>
     </Section>
   );
