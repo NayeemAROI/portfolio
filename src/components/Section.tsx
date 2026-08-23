@@ -1,64 +1,41 @@
-import React from "react";
+import type { ReactNode } from "react";
+import { Reveal } from "@/components/Reveal";
 
-interface SectionProps {
+type SectionProps = {
   id?: string;
-  eyebrow?: string;
-  title?: string;
-  description?: string;
-  children: React.ReactNode;
-  className?: string;
-  dark?: boolean;
-}
+  eyebrow: string;
+  title: string;
+  intro?: string;
+  tone?: "paper" | "subtle";
+  children: ReactNode;
+};
 
 export function Section({
   id,
   eyebrow,
   title,
-  description,
+  intro,
+  tone = "paper",
   children,
-  className = "",
-  dark = false,
 }: SectionProps) {
   return (
     <section
       id={id}
-      className={`relative w-full py-16 md:py-24 ${
-        dark ? "bg-term text-term-ink" : "bg-paper text-ink"
-      } ${className}`}
+      className={`scroll-mt-16 border-t border-line ${
+        tone === "subtle" ? "bg-paper-subtle" : "bg-paper"
+      }`}
     >
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        {(eyebrow || title || description) && (
-          <div className="mb-12 md:mb-16">
-            {eyebrow && (
-              <span
-                className={`inline-block font-mono text-xs tracking-wider uppercase ${
-                  dark ? "text-delivered-bright" : "text-delivered-ink"
-                }`}
-              >
-                {eyebrow}
-              </span>
-            )}
-            {title && (
-              <h2
-                className={`mt-2 font-display text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl ${
-                  dark ? "text-term-ink" : "text-ink"
-                }`}
-              >
-                {title}
-              </h2>
-            )}
-            {description && (
-              <p
-                className={`mt-3 max-w-2xl text-base leading-relaxed ${
-                  dark ? "text-term-muted" : "text-muted"
-                }`}
-              >
-                {description}
-              </p>
-            )}
-          </div>
-        )}
-        {children}
+      <div className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6 md:py-28">
+        <Reveal className="max-w-2xl">
+          <p className="font-mono text-xs uppercase tracking-[0.22em] text-delivered-ink">
+            {eyebrow}
+          </p>
+          <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight md:text-4xl">
+            {title}
+          </h2>
+          {intro ? <p className="mt-4 text-muted">{intro}</p> : null}
+        </Reveal>
+        <div className="mt-12">{children}</div>
       </div>
     </section>
   );

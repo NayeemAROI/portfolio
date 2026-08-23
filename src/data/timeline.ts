@@ -24,7 +24,7 @@ export interface EducationItem {
 export const experiences: ExperienceItem[] = [
   {
     role: "LinkedIn B2B Lead Generation Specialist",
-    organization: "DNA Protected — Crime Prevention & Software",
+    organization: "DNA Protected, Crime Prevention & Software",
     period: "Jul 2025 – Present",
     description:
       "Managing targeted B2B lead generation, prospect identification on LinkedIn Sales Navigator, and data enrichment for outbound pipeline growth.",

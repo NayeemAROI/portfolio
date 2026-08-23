@@ -1,146 +1,101 @@
-"use client";
+import { Reveal } from "@/components/Reveal";
 
-import { useState } from "react";
-import { Section } from "./Section";
-import { Check, Copy, Shield, Terminal, ArrowRight } from "lucide-react";
-
-interface RecordItem {
-  type: string;
-  host: string;
-  value: string;
-  purpose: string;
-  status: "OK" | "PASS" | "VERIFIED";
-}
-
-const sampleRecords: RecordItem[] = [
+/**
+ * Demonstration records per PRODUCT.md: labeled as demo, using the RFC 2606
+ * reserved domain example.com rather than a plausible real one.
+ */
+const records = [
   {
     type: "TXT",
     host: "@",
     value: "v=spf1 include:_spf.google.com ~all",
-    purpose: "Authorizes designated servers to send email on behalf of your domain.",
     status: "PASS",
   },
   {
     type: "TXT",
     host: "google._domainkey",
-    value: "v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0...",
-    purpose: "Signs outgoing messages cryptographically to prove the email wasn't altered in transit.",
+    value: "v=DKIM1; k=rsa; p=MIGfMA0GCSq...",
     status: "PASS",
   },
   {
     type: "TXT",
     host: "_dmarc",
-    value: "v=DMARC1; p=reject; rua=mailto:dmarc-reports@domain.com; pct=100; sp=reject",
-    purpose: "Instructs receiving inboxes (Gmail/Outlook) to reject unauthenticated spoofing attempts.",
-    status: "VERIFIED",
+    value: "v=DMARC1; p=reject; adkim=s; aspf=s",
+    status: "PASS",
   },
   {
     type: "MX",
     host: "@",
     value: "1 smtp.google.com",
-    purpose: "Routes incoming business mail to your secure Google Workspace / Microsoft 365 inbox.",
-    status: "OK",
+    status: "ROUTED",
   },
   {
     type: "CNAME",
-    host: "track.outreach",
-    value: "custom.instantly.ai",
-    purpose: "Custom tracking domain (CTD) isolates open/click tracking to protect domain reputation.",
-    status: "OK",
+    host: "track",
+    value: "custom tracking domain",
+    status: "ACTIVE",
   },
 ];
 
 export function DnsDiagnostic() {
-  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
-
-  const handleCopy = (val: string, idx: number) => {
-    navigator.clipboard.writeText(val);
-    setCopiedIndex(idx);
-    setTimeout(() => setCopiedIndex(null), 2000);
-  };
-
   return (
-    <Section
-      id="dns-auth"
-      dark
-      eyebrow="DNS-02 // INFRASTRUCTURE & AUTHENTICATION"
-      title="The Anatomy of Inbox Delivery"
-      description="Every message you send is evaluated by receiving mail servers in milliseconds. Here is how I configure your DNS layer for 100% authentication alignment."
-    >
-      <div className="overflow-hidden rounded-2xl border border-term-line bg-term-surface/70 shadow-2xl">
-        {/* Top bar */}
-        <div className="flex items-center justify-between border-b border-term-line bg-term-surface px-4 py-3 sm:px-6">
-          <div className="flex items-center gap-2">
-            <Terminal className="size-4 text-delivered-bright" />
-            <span className="font-mono text-xs text-term-ink">
-              DNS_AUTHENTICATION_TABLE // BIND_CONFIG
-            </span>
-          </div>
-          <span className="font-mono text-[11px] text-delivered-bright">
-            STATUS: 100% ALIGNED
-          </span>
-        </div>
+    <section className="scroll-mt-16 bg-term text-term-ink">
+      <div className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6 md:py-28">
+        <Reveal className="max-w-2xl">
+          <p className="font-mono text-xs uppercase tracking-[0.22em] text-delivered-bright">
+            Diagnostic
+          </p>
+          <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight md:text-4xl">
+            What a healthy domain looks like.
+          </h2>
+          <p className="mt-4 text-term-muted">
+            Demonstration records for example.com. Every engagement starts with
+            this audit: SPF, DKIM, DMARC alignment, MX routing, blacklist scan,
+            postmaster reputation.
+          </p>
+        </Reveal>
 
-        {/* Table representation */}
-        <div className="overflow-x-auto p-4 sm:p-6 font-mono text-xs">
-          <div className="min-w-[640px] space-y-3">
-            {/* Header row */}
-            <div className="grid grid-cols-12 gap-3 pb-2 text-[10px] uppercase tracking-wider text-term-muted border-b border-term-line">
-              <div className="col-span-2">Record Type</div>
-              <div className="col-span-3">Host / Name</div>
-              <div className="col-span-5">Value / Payload</div>
-              <div className="col-span-2 text-right">Verification</div>
+        <Reveal delay={120} className="mt-12">
+          <div className="overflow-hidden rounded-2xl border border-term-line bg-term-surface shadow-term">
+            <div className="flex items-center gap-2 border-b border-term-line px-4 py-3 font-mono text-xs text-term-muted">
+              <span className="text-delivered-bright">$</span>
+              dig TXT +short example.com
+              <span className="animate-blink inline-block h-3.5 w-[7px] bg-term-muted/70" />
+              <span className="ml-auto rounded-md border border-term-line px-2 py-0.5 text-[10px] uppercase tracking-wider">
+                demo
+              </span>
             </div>
 
-            {/* Content rows */}
-            {sampleRecords.map((rec, i) => (
-              <div
-                key={i}
-                className="group grid grid-cols-12 items-center gap-3 rounded-lg border border-term-line/50 bg-term/60 p-3 transition-colors hover:border-term-line hover:bg-term"
-              >
-                <div className="col-span-2">
-                  <span className="inline-block rounded bg-delivered/15 px-2 py-0.5 font-bold text-delivered-bright">
-                    {rec.type}
-                  </span>
-                </div>
-                <div className="col-span-3 text-term-ink font-medium truncate">
-                  {rec.host}
-                </div>
-                <div className="col-span-5 text-term-muted truncate">
-                  <span className="text-term-ink/90">{rec.value}</span>
-                </div>
-                <div className="col-span-2 flex items-center justify-end gap-2">
-                  <button
-                    onClick={() => handleCopy(rec.value, i)}
-                    className="p-1 text-term-muted hover:text-term-ink transition"
-                    title="Copy Record"
-                  >
-                    {copiedIndex === i ? (
-                      <Check className="size-3.5 text-delivered-bright" />
-                    ) : (
-                      <Copy className="size-3.5" />
-                    )}
-                  </button>
-                  <span className="rounded border border-delivered/30 bg-delivered/10 px-1.5 py-0.5 text-[10px] font-bold text-delivered-bright">
-                    {rec.status}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Diagnostic Note */}
-          <div className="mt-6 rounded-xl border border-term-line/80 bg-term p-4 text-xs text-term-muted leading-relaxed">
-            <div className="flex items-center gap-2 font-bold text-term-ink">
-              <Shield className="size-4 text-delivered-bright" />
-              <span>Deliverability Guarantee</span>
+            <div className="hidden grid-cols-[64px_150px_1fr_88px] gap-3 border-b border-term-line px-4 py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-term-muted sm:grid">
+              <span>Type</span>
+              <span>Host</span>
+              <span>Value</span>
+              <span className="text-right">Status</span>
             </div>
-            <p className="mt-1.5">
-              Improperly formatted SPF strings, missing DKIM selectors, or unaligned DMARC policies are the #1 reason cold campaigns fail. I audit your domain registrar (Cloudflare, GoDaddy, Namecheap) and configure clean records with zero propagation downtime.
-            </p>
+
+            <ul>
+              {records.map((record) => (
+                <li
+                  key={`${record.type}-${record.host}`}
+                  className="grid grid-cols-[56px_1fr_auto] items-center gap-3 border-b border-term-line px-4 py-3 font-mono text-xs last:border-0 sm:grid-cols-[64px_150px_1fr_88px]"
+                >
+                  <span className="text-term-ink">{record.type}</span>
+                  <span className="hidden truncate text-term-muted sm:block">
+                    {record.host}
+                  </span>
+                  <span className="truncate text-term-muted">{record.value}</span>
+                  <span className="justify-self-end rounded border border-delivered/30 bg-delivered/15 px-2 py-0.5 text-[10px] font-semibold tracking-wider text-delivered-bright">
+                    {record.status}
+                  </span>
+                </li>
+              ))}
+            </ul>
           </div>
-        </div>
+          <p className="mt-4 font-mono text-[11px] text-term-muted">
+            # if your records do not look like this, that is usually the whole problem.
+          </p>
+        </Reveal>
       </div>
-    </Section>
+    </section>
   );
 }
