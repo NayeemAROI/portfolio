@@ -1,5 +1,6 @@
 import { ScrollPortraitHero } from "@/components/ScrollPortraitHero";
 import { Features02 } from "@/components/originkit/features-02";
+import { Features04 } from "@/components/originkit/features-04";
 import { PostmasterStrip } from "@/components/PostmasterStrip";
 import { ServicesSection } from "@/components/ServicesSection";
 import { DnsDiagnostic } from "@/components/DnsDiagnostic";
@@ -13,6 +14,7 @@ export default function Home() {
     <>
       <ScrollPortraitHero />
       <Features02 />
+      <Features04 />
       <PostmasterStrip />
       <ServicesSection />
       <DnsDiagnostic />

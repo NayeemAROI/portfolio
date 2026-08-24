@@ -32,3 +32,10 @@
 @theme {
   --animate-globe-orbit: globe-orbit 14s linear infinite;
 }
+
+/* originkit:features-04 */
+/* src/components/originkit/features-04.css */
+@theme {
+  --animate-hero-reveal: ok-f04-hero-reveal 300ms cubic-bezier(0.215, 0.61, 0.355, 1)
+    both;
+}
