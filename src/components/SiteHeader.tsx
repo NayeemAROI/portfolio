@@ -17,8 +17,10 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
+  const isHome = pathname === "/";
+
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
+    const onScroll = () => setScrolled(window.scrollY > 16);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -38,12 +40,17 @@ export function SiteHeader() {
   const isActive = (href: string) =>
     href.startsWith("/#") ? false : pathname === href || pathname.startsWith(`${href}/`);
 
+  // Dark glass style at top of homepage, clean paper style elsewhere or when scrolled
+  const isDarkNav = isHome && !scrolled;
+
   return (
     <header
-      className={`sticky top-0 z-50 w-full border-b transition-all duration-300 ${
-        scrolled
-          ? "border-line bg-paper/90 shadow-card backdrop-blur-md"
-          : "border-transparent bg-paper/70 backdrop-blur-sm"
+      className={`fixed top-0 z-50 w-full border-b transition-all duration-300 ${
+        isDarkNav
+          ? "border-white/10 bg-black/40 text-white backdrop-blur-md"
+          : scrolled
+          ? "border-line bg-paper/90 shadow-card backdrop-blur-md text-ink"
+          : "border-transparent bg-paper/80 backdrop-blur-sm text-ink"
       }`}
     >
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
@@ -52,18 +59,20 @@ export function SiteHeader() {
             N
           </span>
           <span className="hidden flex-col leading-tight sm:flex">
-            <span className="font-display text-sm font-semibold tracking-tight">
+            <span className={`font-display text-sm font-semibold tracking-tight ${isDarkNav ? "text-white" : "text-ink"}`}>
               Nayeemur Rahman
             </span>
-            <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted">
+            <span className={`font-mono text-[10px] uppercase tracking-[0.18em] ${isDarkNav ? "text-white/60" : "text-muted"}`}>
               Email Deliverability
             </span>
           </span>
         </Link>
 
-        <div className="hidden items-center gap-2 rounded-full border border-line bg-card px-3 py-1 lg:flex">
-          <span className="size-1.5 rounded-full bg-delivered animate-pulse-dot" />
-          <span className="font-mono text-[11px] tracking-wide text-muted">
+        <div className={`hidden items-center gap-2 rounded-full border px-3 py-1 lg:flex ${
+          isDarkNav ? "border-white/15 bg-white/5 text-white/80" : "border-line bg-card text-muted"
+        }`}>
+          <span className="size-1.5 rounded-full bg-delivered-bright animate-pulse-dot" />
+          <span className="font-mono text-[11px] tracking-wide">
             SPF · DKIM · DMARC · PASS
           </span>
         </div>
@@ -75,7 +84,11 @@ export function SiteHeader() {
               href={item.href}
               className={`rounded-full px-3.5 py-1.5 text-sm transition-colors ${
                 isActive(item.href)
-                  ? "bg-ink text-paper"
+                  ? isDarkNav
+                    ? "bg-white/20 text-white font-semibold"
+                    : "bg-ink text-paper font-semibold"
+                  : isDarkNav
+                  ? "text-white/75 hover:bg-white/10 hover:text-white"
                   : "text-muted hover:bg-paper-subtle hover:text-ink"
               }`}
             >
@@ -96,21 +109,25 @@ export function SiteHeader() {
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
           aria-label={open ? "Close menu" : "Open menu"}
-          className="grid size-10 place-items-center rounded-lg border border-line md:hidden"
+          className={`grid size-10 place-items-center rounded-lg border md:hidden ${
+            isDarkNav ? "border-white/20 text-white" : "border-line text-ink"
+          }`}
         >
           {open ? <X className="size-5" /> : <Menu className="size-5" />}
         </button>
       </div>
 
       {open && (
-        <div className="border-t border-line bg-paper md:hidden">
+        <div className={`border-t md:hidden ${isDarkNav ? "border-white/10 bg-black/95 text-white" : "border-line bg-paper text-ink"}`}>
           <nav className="mx-auto flex max-w-6xl flex-col px-4 py-4 sm:px-6" aria-label="Mobile">
             {navItems.map((item, i) => (
               <Link
                 key={item.href}
                 href={item.href}
                 onClick={() => setOpen(false)}
-                className="animate-rise border-b border-line/60 py-3.5 font-display text-lg font-medium last:border-0"
+                className={`animate-rise border-b py-3.5 font-display text-lg font-medium last:border-0 ${
+                  isDarkNav ? "border-white/10 text-white" : "border-line/60 text-ink"
+                }`}
                 style={{ animationDelay: `${i * 50}ms` }}
               >
                 {item.label}

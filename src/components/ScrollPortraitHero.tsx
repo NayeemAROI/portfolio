@@ -151,15 +151,29 @@ export function ScrollPortraitHero() {
       fitCanvas();
       const canvasWidth = canvas.width;
       const canvasHeight = canvas.height;
-      const imageWidth = image.width || ("naturalWidth" in image ? image.naturalWidth : canvasWidth);
-      const imageHeight = image.height || ("naturalHeight" in image ? image.naturalHeight : canvasHeight);
+      const imageWidth = image.width || ("naturalWidth" in image ? image.naturalWidth : 1920);
+      const imageHeight = image.height || ("naturalHeight" in image ? image.naturalHeight : 1080);
       
-      const scale = Math.max(canvasWidth / imageWidth, canvasHeight / imageHeight);
+      const isMobile = mobileQuery.matches;
+      
+      // Calculate scale to keep the full head & hair comfortably inside the frame
+      let scale = Math.max(canvasWidth / imageWidth, canvasHeight / imageHeight);
+      
+      // Prevent over-zooming on wide aspect ratio viewports that crops the top of the head
+      if (scale * imageHeight > canvasHeight * 1.15) {
+        scale = (canvasHeight * 1.12) / imageHeight;
+      }
+
       const drawWidth = imageWidth * scale;
       const drawHeight = imageHeight * scale;
-      const focalX = mobileQuery.matches ? 0.43 : 0.5;
+      
+      // Horizontal alignment
+      const focalX = isMobile ? 0.45 : (canvasWidth > 1600 ? 0.58 : 0.52);
       const x = (canvasWidth - drawWidth) * focalX;
-      const y = 0;
+      
+      // Vertical placement with safe top headroom below navbar
+      const topHeadroom = isMobile ? canvasHeight * 0.03 : Math.min(canvasHeight * 0.09, 85);
+      const y = topHeadroom + Math.max(0, (canvasHeight - topHeadroom - drawHeight) * 0.1);
 
       ctx.fillStyle = "#000000";
       ctx.fillRect(0, 0, canvasWidth, canvasHeight);
@@ -246,7 +260,7 @@ export function ScrollPortraitHero() {
             const res = await fetch(frameUrl(index), { cache: "force-cache" });
             if (res.ok) await res.blob();
           } catch {
-            // Low-priority background warmup
+            // Background pre-cache
           }
           warmedFrames++;
           const pct = Math.round((warmedFrames / FRAME_COUNT) * 100);
@@ -376,7 +390,7 @@ export function ScrollPortraitHero() {
         )}
 
         {/* HUD Interactive Overlay Layer */}
-        <div className="pointer-events-none absolute inset-0 z-10 flex flex-col justify-between p-4 sm:p-8 md:p-12">
+        <div className="pointer-events-none absolute inset-0 z-10 flex flex-col justify-between p-4 pt-20 sm:p-8 sm:pt-24 md:p-12 md:pt-28">
           
           {/* Top Bar HUD */}
           <div className="flex items-start justify-between gap-4">
