@@ -1,4 +1,4 @@
-import { ScrollPortraitHero } from "@/components/ScrollPortraitHero";
+import { ThreePortraitHero } from "@/components/ThreePortraitHero";
 import { Features02 } from "@/components/originkit/features-02";
 import { Features04 } from "@/components/originkit/features-04";
 import { PostmasterStrip } from "@/components/PostmasterStrip";
@@ -12,7 +12,7 @@ import { ComposeCTA } from "@/components/ComposeCTA";
 export default function Home() {
   return (
     <>
-      <ScrollPortraitHero />
+      <ThreePortraitHero />
       <Features02 />
       <Features04 />
       <PostmasterStrip />
