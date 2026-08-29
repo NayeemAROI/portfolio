@@ -1,6 +1,4 @@
-import { ScrollPortraitHero } from "@/components/ScrollPortraitHero";
-import { Features02 } from "@/components/originkit/features-02";
-import { Features04 } from "@/components/originkit/features-04";
+import { HeroDeliverability } from "@/components/HeroDeliverability";
 import { PostmasterStrip } from "@/components/PostmasterStrip";
 import { ServicesSection } from "@/components/ServicesSection";
 import { DnsDiagnostic } from "@/components/DnsDiagnostic";
@@ -12,9 +10,7 @@ import { ComposeCTA } from "@/components/ComposeCTA";
 export default function Home() {
   return (
     <>
-      <ScrollPortraitHero />
-      <Features02 />
-      <Features04 />
+      <HeroDeliverability />
       <PostmasterStrip />
       <ServicesSection />
       <DnsDiagnostic />
