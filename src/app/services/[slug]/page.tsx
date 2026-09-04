@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { services } from "@/data/services";
 import { links } from "@/data/links";
+import { contactHrefForService } from "@/data/serviceTopics";
 import { ProcessRail } from "@/components/ProcessRail";
 import { Reveal } from "@/components/Reveal";
 
@@ -132,7 +133,7 @@ export default async function ServicePage({
                   </li>
                 </ul>
                 <Link
-                  href="/contact"
+                  href={contactHrefForService(service.id)}
                   className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-delivered px-4 py-2.5 font-semibold text-term transition-colors hover:bg-delivered-bright"
                 >
                   Start with an audit
@@ -199,7 +200,7 @@ export default async function ServicePage({
               </div>
               <div className="flex flex-wrap justify-center gap-3">
                 <Link
-                  href="/contact"
+                  href={contactHrefForService(service.id)}
                   className="inline-flex items-center gap-2 rounded-xl bg-delivered px-4 py-2.5 font-semibold text-term transition-colors hover:bg-delivered-bright"
                 >
                   Get in touch
