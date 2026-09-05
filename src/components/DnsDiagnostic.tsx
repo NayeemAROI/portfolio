@@ -43,6 +43,7 @@ export function DnsDiagnostic() {
       <div className="mx-auto w-full max-w-6xl px-4 py-14 sm:px-6 md:py-20">
         <Reveal className="mx-auto max-w-2xl text-center">
           <p className="font-mono text-xs uppercase tracking-[0.22em] text-delivered-bright">
+            <span className="text-term-muted">DIAG-03 // </span>
             Diagnostic
           </p>
           <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight md:text-4xl">

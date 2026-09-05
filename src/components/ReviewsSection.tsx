@@ -21,6 +21,7 @@ export function ReviewsSection() {
   return (
     <Section
       tone="subtle"
+      code="LOG-05"
       eyebrow="Client feedback"
       title="Seven contracts. Seven 5.0s."
       intro={`Every completed Upwork contract to date, quoted verbatim. ${site.stats.jss} Job Success Score.`}

@@ -3,8 +3,7 @@ export interface ProofMetric {
   label: string;
   value: string;
   caption: string;
-  badge?: string;
-  icon: "check" | "star" | "shield" | "clock" | "zap" | "mail";
+  chip: string;
 }
 
 /**
@@ -15,30 +14,30 @@ export interface ProofMetric {
 export const proofMetrics: ProofMetric[] = [
   {
     id: "jss",
-    label: "JOB_SUCCESS_SCORE",
+    label: "JOB SUCCESS SCORE",
     value: "100%",
     caption: "Across all completed contracts",
-    icon: "shield",
+    chip: "PASS",
   },
   {
     id: "rating",
-    label: "CLIENT_RATING",
+    label: "CLIENT RATING",
     value: "5.0",
-    caption: "Every completed project, no exceptions",
-    icon: "star",
+    caption: "Every completed job, no exceptions",
+    chip: "5.0 / 5",
   },
   {
     id: "jobs",
-    label: "JOBS_CLOSED",
-    value: "7 / 8",
-    caption: "Three more in progress",
-    icon: "check",
+    label: "JOBS CLOSED",
+    value: "7 OF 8",
+    caption: "Three more contracts in progress",
+    chip: "3 ACTIVE",
   },
   {
     id: "identity",
     label: "IDENTITY",
     value: "Verified",
-    caption: "ID checked by Upwork",
-    icon: "shield",
+    caption: "Government ID checked by Upwork",
+    chip: "ON FILE",
   },
 ];

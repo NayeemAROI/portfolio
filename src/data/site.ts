@@ -17,6 +17,5 @@ export const site = {
     totalJobs: "8",
     inProgress: "3",
     idVerified: true,
-    topRated: true,
   },
 } as const;

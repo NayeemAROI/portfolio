@@ -34,8 +34,16 @@ Rules: one accent per view. Green means delivered/go. Amber and red exist only i
 - Mono eyebrow pattern for section labels: `MX-01 // DELIVERABILITY`.
 
 ## Signature motifs
-1. **Inbox hero:** value props arrive as email rows: staggered slide + fade, 60ms stagger, then a green "delivered" check draws in. Plays once on load, no loop.
-2. **Postmaster strip:** proof stats rendered as a monospace report: `health 87-100% / opens 45-53% / JSS 100%`.
+
+> 2026-09 revision: the home hero is now the **scroll portrait cover** (a
+> 180-frame black-and-white portrait that rotates 220° across one viewport
+> of scroll), followed immediately by the proof as a **postmaster strip**.
+> The earlier inbox-row hero was retired with the template it came from;
+> motifs 3 and 4 below are unchanged and ship as the DNS diagnostic table
+> and the compose-window contact block.
+
+1. ~~**Inbox hero:**~~ superseded by the scroll portrait cover (see note).
+2. **Postmaster strip:** proof stats rendered as a monospace report: `JSS 100% / RATING 5.0 / JOBS 7 OF 8`, straight under the hero, each figure visible on the Upwork profile.
 3. **DNS record table:** skills and tools rendered as record rows: `TYPE / NAME / VALUE / check`.
 4. **Compose CTA:** the contact block is styled as a compose window (To: Nayeemur Rahman) with a Delivered-green Send button.
 

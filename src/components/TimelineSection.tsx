@@ -6,6 +6,7 @@ import { Reveal } from "@/components/Reveal";
 export function TimelineSection() {
   return (
     <Section
+      code="REC-06"
       eyebrow="Track record"
       title="The long game."
       intro="Employment, certifications, and the education behind the work."
