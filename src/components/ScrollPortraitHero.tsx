@@ -2,483 +2,166 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { ArrowDown, ArrowRight, ShieldCheck } from "lucide-react";
 import { site } from "@/data/site";
 import { links } from "@/data/links";
-import { ArrowRight, ShieldCheck, Mail, ArrowDown } from "lucide-react";
 
 const FRAME_COUNT = 180;
-const MAX_ANGLE = 220;
-const CACHE_LIMIT_DESKTOP = 32;
-const CACHE_LIMIT_MOBILE = 20;
+const pad = (index: number) => String(index + 1).padStart(3, "0");
 
-const clamp = (val: number, min: number, max: number) => Math.min(max, Math.max(min, val));
-const pad = (val: number) => String(val).padStart(3, "0");
-
+/** The real portrait and hiring path work before animation or JavaScript. */
 export function ScrollPortraitHero() {
-  const sceneRef = useRef<HTMLDivElement>(null);
+  const sceneRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  const [isReady, setIsReady] = useState(false);
-  const [loadPercent, setLoadPercent] = useState(0);
-  const [angle, setAngle] = useState(0);
-  const [currentFrame, setCurrentFrame] = useState(1);
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [loadStatusText, setLoadStatusText] = useState("Calibrating");
-  const [statusComplete, setStatusComplete] = useState(false);
+  const [animated, setAnimated] = useState(false);
 
   useEffect(() => {
     const scene = sceneRef.current;
     const canvas = canvasRef.current;
     if (!scene || !canvas) return;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const roomy = window.matchMedia("(min-width: 768px) and (min-height: 760px)");
+    const connection = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
+    const lightConnection = connection?.saveData || /^(slow-)?2g$/.test(connection?.effectiveType ?? "");
+    const base = window.location.pathname.startsWith("/portfolio") ? "/portfolio" : "";
+    const cache = new Map<number, HTMLImageElement>();
+    let disposed = false;
+    let active = false;
+    let target = 0;
+    let pending: HTMLImageElement | null = null;
+    let request = 0;
+    let context: CanvasRenderingContext2D | null = null;
 
-    const ctx = canvas.getContext("2d", { alpha: false });
-    if (!ctx) return;
-
-    let destroyed = false;
-    const mobileQuery = window.matchMedia("(max-width: 700px)");
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-
-    const getBasePath = () => {
-      if (typeof window !== "undefined" && window.location.pathname.startsWith("/portfolio")) {
-        return "/portfolio";
-      }
-      return "";
-    };
-
-    let assetBase = `${getBasePath()}/assets/${
-      mobileQuery.matches ? "frames-mobile" : "frames-desktop"
-    }`;
-
-    let targetFrame = 0;
-    let displayedFrame = -1;
-    let renderRequest = 0;
-    let warmedFrames = 0;
-    let warmingStarted = false;
-
-    const frameCache = new Map<number, HTMLImageElement>();
-    const frameLoads = new Map<number, Promise<HTMLImageElement>>();
-
-    const frameUrl = (index: number) => `${assetBase}/frame_${pad(index + 1)}.webp`;
-    const cacheLimit = () => (mobileQuery.matches ? CACHE_LIMIT_MOBILE : CACHE_LIMIT_DESKTOP);
-
-    function touchCache(index: number, image: HTMLImageElement) {
-      frameCache.delete(index);
-      frameCache.set(index, image);
-    }
-
-    function trimCache() {
-      const protectedFrames = new Set([
-        targetFrame,
-        clamp(targetFrame - 1, 0, FRAME_COUNT - 1),
-        clamp(targetFrame + 1, 0, FRAME_COUNT - 1),
-      ]);
-
-      while (frameCache.size > cacheLimit()) {
-        const oldest = frameCache.keys().next().value;
-        if (oldest === undefined) break;
-        if (protectedFrames.has(oldest)) {
-          const img = frameCache.get(oldest)!;
-          frameCache.delete(oldest);
-          frameCache.set(oldest, img);
-          continue;
-        }
-        frameCache.delete(oldest);
+    function cancelPending() {
+      if (pending) {
+        pending.onload = null;
+        pending.onerror = null;
+        pending = null;
       }
     }
 
-    function loadImageElement(url: string): Promise<HTMLImageElement> {
-      return new Promise((resolve, reject) => {
-        const image = new Image();
-        image.decoding = "async";
-        image.onload = () => resolve(image);
-        image.onerror = (e) => reject(e);
-        image.src = url;
-      });
+    function draw(image: HTMLImageElement) {
+      if (!canvas || !context || disposed || !active) return;
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      const width = Math.max(1, Math.round(canvas.clientWidth * dpr));
+      const height = Math.max(1, Math.round(canvas.clientHeight * dpr));
+      if (canvas.width !== width) canvas.width = width;
+      if (canvas.height !== height) canvas.height = height;
+      const scale = Math.max(width / image.naturalWidth, height / image.naturalHeight);
+      context.drawImage(image, (width - image.naturalWidth * scale) / 2, 0, image.naturalWidth * scale, image.naturalHeight * scale);
+      canvas.style.opacity = "1";
     }
 
-    async function loadFrame(index: number): Promise<HTMLImageElement> {
-      const safeIndex = clamp(index, 0, FRAME_COUNT - 1);
-      if (frameCache.has(safeIndex)) {
-        const cached = frameCache.get(safeIndex)!;
-        touchCache(safeIndex, cached);
-        return cached;
+    function fallback() {
+      active = false;
+      cancelPending();
+      cache.clear();
+      if (canvas) canvas.style.opacity = "0";
+      if (!disposed) setAnimated(false);
+    }
+
+    function renderTarget() {
+      if (!active || disposed) return;
+      const cached = cache.get(target);
+      if (cached) {
+        cache.delete(target);
+        cache.set(target, cached);
+        draw(cached);
+        return;
       }
-      if (frameLoads.has(safeIndex)) return frameLoads.get(safeIndex)!;
-
-      const promise = loadImageElement(frameUrl(safeIndex))
-        .then((img) => {
-          frameLoads.delete(safeIndex);
-          if (!destroyed) {
-            touchCache(safeIndex, img);
-            trimCache();
-          }
-          return img;
-        })
-        .catch((err) => {
-          frameLoads.delete(safeIndex);
-          throw err;
-        });
-
-      frameLoads.set(safeIndex, promise);
-      return promise;
-    }
-
-    function fitCanvas() {
-      if (!canvas) return;
-      const ratio = Math.min(window.devicePixelRatio || 1, 2);
-      const width = Math.max(1, Math.round(canvas.clientWidth * ratio));
-      const height = Math.max(1, Math.round(canvas.clientHeight * ratio));
-      if (canvas.width !== width || canvas.height !== height) {
-        canvas.width = width;
-        canvas.height = height;
-      }
-    }
-
-    function drawImage(image: HTMLImageElement) {
-      if (!canvas || !ctx || destroyed) return;
-      fitCanvas();
-      const canvasWidth = canvas.width;
-      const canvasHeight = canvas.height;
-      const imageWidth = image.width || image.naturalWidth || canvasWidth;
-      const imageHeight = image.height || image.naturalHeight || canvasHeight;
-
-      const scale = Math.max(canvasWidth / imageWidth, canvasHeight / imageHeight);
-      const drawWidth = imageWidth * scale;
-      const drawHeight = imageHeight * scale;
-      const focalX = mobileQuery.matches ? 0.45 : 0.5;
-      const x = (canvasWidth - drawWidth) * focalX;
-      const y = 0;
-
-      ctx.fillStyle = "#050505";
-      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-      ctx.drawImage(image, x, y, drawWidth, drawHeight);
-    }
-
-    function nearestCachedFrame(index: number): number | null {
-      if (frameCache.has(index)) return index;
-      for (let distance = 1; distance < FRAME_COUNT; distance++) {
-        const lower = index - distance;
-        const upper = index + distance;
-        if (lower >= 0 && frameCache.has(lower)) return lower;
-        if (upper < FRAME_COUNT && frameCache.has(upper)) return upper;
-      }
-      return null;
-    }
-
-    async function renderTarget() {
-      renderRequest = 0;
-      if (destroyed) return;
-      const requested = targetFrame;
-      const nearby = nearestCachedFrame(requested);
-      if (nearby !== null && displayedFrame !== nearby) {
-        drawImage(frameCache.get(nearby)!);
-        displayedFrame = nearby;
-      }
-
-      try {
-        const img = await loadFrame(requested);
-        if (targetFrame === requested && !destroyed) {
-          drawImage(img);
-          displayedFrame = requested;
-        }
-      } catch (err) {
-        console.warn("Frame render warning", err);
-      }
-    }
-
-    function requestRender() {
-      if (!renderRequest) renderRequest = requestAnimationFrame(renderTarget);
-    }
-
-    function preloadAround(index: number) {
-      const offsets = [1, -1, 2, -2, 3, -3, 4, -4];
-      offsets.forEach((offset) => {
-        const candidate = index + offset;
-        if (candidate >= 0 && candidate < FRAME_COUNT) {
-          loadFrame(candidate).catch(() => {});
-        }
-      });
-    }
-
-    function getProgress() {
-      if (!scene) return 0;
-      const rect = scene.getBoundingClientRect();
-      const scrollDist = Math.max(1, scene.offsetHeight - window.innerHeight);
-      return clamp(-rect.top / scrollDist, 0, 1);
-    }
-
-    function updateFromScroll() {
-      if (reducedMotion.matches) return;
-      const progress = getProgress();
-      targetFrame = Math.round(progress * (FRAME_COUNT - 1));
-
-      setScrollProgress(progress);
-      setAngle(Math.round(progress * MAX_ANGLE));
-      setCurrentFrame(targetFrame + 1);
-
-      requestRender();
-      preloadAround(targetFrame);
-    }
-
-    /**
-     * The connection object is non-standard, so it is probed defensively.
-     * Users with Data Saver on (or on 2G) skip the full-sequence background
-     * warm: frames still load on demand as they scroll.
-     */
-    function connectionPrefersLight(): boolean {
-      const nav = navigator as Navigator & {
-        connection?: { saveData?: boolean; effectiveType?: string };
+      // ponytail: one in-flight image and 20 decoded frames, no full-sequence prefetch.
+      // Upgrade only if measured fast-scroll latency justifies a wider queue.
+      if (pending) return;
+      const index = target;
+      const image = new Image();
+      pending = image;
+      image.decoding = "async";
+      image.onload = () => {
+        if (disposed || !active || pending !== image) return;
+        pending = null;
+        cache.set(index, image);
+        while (cache.size > 20) cache.delete(cache.keys().next().value!);
+        if (index === target) draw(image);
+        else renderTarget();
       };
-      const conn = nav.connection;
-      if (!conn) return false;
-      return Boolean(conn.saveData) || /^(slow-)?2g$/.test(conn.effectiveType ?? "");
+      image.onerror = fallback;
+      image.src = `${base}/assets/frames-desktop/frame_${pad(index)}.webp`;
     }
 
-    async function warmCompressedCache() {
-      if (warmingStarted || reducedMotion.matches) return;
-      warmingStarted = true;
-
-      if (connectionPrefersLight()) {
-        setLoadStatusText("Data saver: streaming only");
-        setTimeout(() => setStatusComplete(true), 600);
-        return;
-      }
-
-      let cursor = 0;
-      const workers = Math.min(4, navigator.hardwareConcurrency || 4);
-
-      async function worker() {
-        while (cursor < FRAME_COUNT && !destroyed) {
-          const index = cursor++;
-          try {
-            const res = await fetch(frameUrl(index), { cache: "force-cache" });
-            if (res.ok) await res.blob();
-          } catch {
-            // Background prefetch
-          }
-          warmedFrames++;
-          const pct = Math.round((warmedFrames / FRAME_COUNT) * 100);
-          setLoadPercent(pct);
-          setLoadStatusText(`Frames ${pct}%`);
-          if (warmedFrames >= FRAME_COUNT) {
-            setLoadStatusText("Frames ready");
-            setTimeout(() => setStatusComplete(true), 600);
-          }
-        }
-      }
-
-      await Promise.all(Array.from({ length: workers }, () => worker()));
+    function update() {
+      request = 0;
+      if (!scene || !active || document.hidden) return;
+      const rect = scene.getBoundingClientRect();
+      if (rect.bottom <= 64 || rect.top >= window.innerHeight) return;
+      const distance = Math.max(1, scene.offsetHeight - (window.innerHeight - 64));
+      const progress = Math.min(1, Math.max(0, (64 - rect.top) / distance));
+      target = Math.round(progress * (FRAME_COUNT - 1));
+      renderTarget();
     }
 
-    async function initialize() {
-      try {
-        const first = await loadFrame(0);
-        if (destroyed) return;
-        drawImage(first);
-        displayedFrame = 0;
-        setIsReady(true);
-        preloadAround(0);
-        warmCompressedCache();
-        updateFromScroll();
-      } catch (err) {
-        console.error("Initialization failed", err);
-        setLoadStatusText("Load error");
-        setIsReady(true);
-      }
+    function schedule() {
+      if (!request && active) request = requestAnimationFrame(update);
     }
 
-    function resetForBreakpoint() {
-      const nextBase = `${getBasePath()}/assets/${
-        mobileQuery.matches ? "frames-mobile" : "frames-desktop"
-      }`;
-      if (nextBase === assetBase) {
-        const img = frameCache.get(displayedFrame);
-        if (img) drawImage(img);
-        return;
-      }
-
-      frameCache.clear();
-      frameLoads.clear();
-      assetBase = nextBase;
-      displayedFrame = -1;
-      warmedFrames = 0;
-      warmingStarted = false;
-      initialize();
+    function configure() {
+      if (disposed) return;
+      fallback();
+      if (reduced.matches || !roomy.matches || lightConnection) return;
+      context = canvas!.getContext("2d");
+      if (!context) return;
+      active = true;
+      setAnimated(true);
+      // Wait for React to apply the enhanced scene height before measuring it.
+      schedule();
     }
 
-    let resizeTimer: NodeJS.Timeout;
-    const handleResize = () => {
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(resetForBreakpoint, 120);
-    };
-
-    window.addEventListener("resize", handleResize, { passive: true });
-    window.addEventListener("scroll", updateFromScroll, { passive: true });
-    mobileQuery.addEventListener("change", resetForBreakpoint);
-
-    initialize();
-
+    const startup = requestAnimationFrame(configure);
+    reduced.addEventListener("change", configure);
+    roomy.addEventListener("change", configure);
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule, { passive: true });
+    document.addEventListener("visibilitychange", schedule);
     return () => {
-      destroyed = true;
-      clearTimeout(resizeTimer);
-      window.removeEventListener("resize", handleResize);
-      window.removeEventListener("scroll", updateFromScroll);
-      mobileQuery.removeEventListener("change", resetForBreakpoint);
-      if (renderRequest) cancelAnimationFrame(renderRequest);
-      frameCache.clear();
-      frameLoads.clear();
+      disposed = true;
+      active = false;
+      cancelAnimationFrame(startup);
+      cancelAnimationFrame(request);
+      cancelPending();
+      cache.clear();
+      reduced.removeEventListener("change", configure);
+      roomy.removeEventListener("change", configure);
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+      document.removeEventListener("visibilitychange", schedule);
     };
   }, []);
 
   return (
-    <section
-      ref={sceneRef}
-      id="portrait-hero"
-      aria-label="Portrait of Nayeemur Rahman, rotating through 220 degrees as you scroll"
-      className="relative h-[300vh] w-full bg-term text-term-ink"
-    >
-      {/* Sticky stage */}
-      <div className="sticky top-0 h-[100svh] w-full overflow-hidden bg-term">
-        {/* Full-bleed canvas */}
-        <canvas
-          ref={canvasRef}
-          role="img"
-          aria-label="Black and white portrait of Nayeemur Rahman facing the camera, rotating from profile view to frontal view as the page scrolls"
-          className="block size-full bg-black"
-        />
-
-        {/* Vignette + legibility gradients */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-1 bg-gradient-to-b from-black/50 via-transparent to-black/80 md:bg-[radial-gradient(ellipse_at_center,transparent_35%,rgba(0,0,0,0.65)_100%)]"
-        />
-
-        {/* Loading overlay */}
-        {!isReady && (
-          <div
-            role="status"
-            aria-live="polite"
-            className="absolute inset-0 z-20 grid place-items-center bg-black/95 p-4 transition-opacity duration-300"
-          >
-            <div className="w-64 text-center font-mono">
-              <p className="text-xs uppercase tracking-widest text-term-muted">
-                Preparing portrait sequence
-              </p>
-              <div className="mt-3 h-1 w-full overflow-hidden rounded-full bg-term-line">
-                <div
-                  className="h-full bg-delivered-bright transition-all duration-200"
-                  style={{ width: `${Math.max(12, loadPercent)}%` }}
-                />
-              </div>
-            </div>
+    <section ref={sceneRef} id="portrait-hero" className="portrait-cover" data-animated={animated ? "true" : undefined} aria-label="Portrait of Nayeemur Rahman">
+      <div className="portrait-stage">
+        <picture className="portrait-image">
+          <source media="(max-width: 700px)" srcSet="assets/frames-mobile/frame_001.webp" />
+          {/* A plain image is intentional: the static export and no-JS path must work. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="assets/frames-desktop/frame_001.webp" alt="Black and white portrait of Nayeemur Rahman" fetchPriority="high" width={1920} height={1080} />
+        </picture>
+        <canvas ref={canvasRef} aria-hidden="true" className="portrait-canvas" />
+        <div className="portrait-shade" aria-hidden="true" />
+        <div className="portrait-content">
+          <div className="portrait-presence">
+            <p>{site.availability}</p>
+            <p>{site.location} · {site.timezone}</p>
           </div>
-        )}
-
-        {/* HUD overlay */}
-        <div className="pointer-events-none absolute inset-0 z-10 flex flex-col justify-between p-4 pt-24 sm:p-8 sm:pt-28 md:p-12 md:pt-32">
-          {/* Top bar */}
-          <div className="flex items-start justify-between gap-4">
-            <div className="space-y-1.5 font-mono">
-              <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-delivered-bright">
-                <span className="size-1.5 rounded-full bg-delivered-bright animate-pulse-dot" />
-                {site.availability}
-              </p>
-              <p className="text-[11px] uppercase tracking-[0.16em] text-term-muted">
-                {site.location} · {site.timezone}
-              </p>
+          <div className="portrait-copy">
+            <h1>Cold email that lands in the <span>primary inbox</span>, not spam.</h1>
+            <p className="portrait-bio">{site.bio}</p>
+            <div className="portrait-actions">
+              <Link href="/contact" className="portrait-primary">Fix my deliverability <ArrowRight size={18} aria-hidden="true" /></Link>
+              <a href={links.upwork} target="_blank" rel="noopener noreferrer" className="portrait-secondary"><ShieldCheck size={18} aria-hidden="true" /> Upwork profile</a>
             </div>
-
-            <div className="text-right">
-              <div className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-term-line bg-term/80 px-3 py-1 font-mono text-[11px] text-term-ink backdrop-blur-sm">
-                <ShieldCheck className="size-3.5 text-delivered-bright" />
-                <span>JSS {site.stats.jss} · {site.stats.rating} ★ · ID VERIFIED</span>
-              </div>
-              <p
-                className={`mt-1 font-mono text-[10px] text-term-muted transition-opacity duration-300 ${
-                  statusComplete ? "opacity-0" : "opacity-100"
-                }`}
-              >
-                {loadStatusText}
-              </p>
-            </div>
-          </div>
-
-          {/* Copy + dial */}
-          <div className="flex items-end justify-between gap-6">
-            <div className="pointer-events-auto max-w-xl space-y-4">
-              <h1 className="font-display text-3xl font-extrabold tracking-tight text-white sm:text-4xl md:text-5xl lg:leading-[1.1]">
-                Cold email that lands in the{" "}
-                <span className="text-delivered-bright">primary inbox</span>, not
-                spam.
-              </h1>
-
-              <p className="max-w-lg text-sm leading-relaxed text-term-muted sm:text-base">
-                {site.bio}
-              </p>
-
-              <div className="flex flex-wrap items-center gap-3 pt-2">
-                <Link
-                  href="/contact"
-                  className="inline-flex items-center gap-2 rounded-xl bg-delivered px-5 py-2.5 font-mono text-xs font-semibold text-term shadow-md transition-all hover:bg-delivered-bright active:scale-95"
-                >
-                  <Mail className="size-4" />
-                  Fix my deliverability
-                  <ArrowRight className="size-3.5" />
-                </Link>
-
-                <a
-                  href={links.upwork}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-xl border border-term-line bg-term/90 px-4 py-2.5 font-mono text-xs font-medium text-term-ink backdrop-blur-sm transition-colors hover:border-term-muted hover:bg-term active:scale-95"
-                >
-                  <ShieldCheck className="size-4 text-delivered-bright" />
-                  Upwork profile
-                </a>
-              </div>
-
-              <p className="flex items-center gap-2 pt-1 font-mono text-[11px] text-term-muted">
-                <ArrowDown className="size-3.5 animate-bounce text-delivered-bright" />
-                <span>Keep scrolling: the portrait rotates with you</span>
-              </p>
-            </div>
-
-            {/* Rotation dial (decorative; the canvas carries the description) */}
-            <div
-              aria-hidden="true"
-              className="hidden shrink-0 items-center gap-3 font-mono sm:flex"
-            >
-              <div className="text-right">
-                <span className="block text-sm font-bold text-delivered-bright tabular-nums">
-                  {angle}°
-                </span>
-                <span className="block text-[10px] text-term-muted tabular-nums">
-                  of {MAX_ANGLE}° · {pad(currentFrame)}/{FRAME_COUNT}
-                </span>
-              </div>
-
-              <div className="relative h-10 w-1.5 overflow-hidden rounded-full bg-term-line">
-                <div
-                  className="w-full origin-top bg-delivered-bright transition-transform duration-75"
-                  style={{ transform: `scaleY(${scrollProgress})` }}
-                />
-              </div>
-            </div>
+            <a href="#services" className="portrait-skip"><ArrowDown size={18} aria-hidden="true" /> Explore services</a>
           </div>
         </div>
-
-        {/* Static fallback without JavaScript. Relative path works at both
-            site roots ("/" and the GitHub Pages basePath). */}
-        <noscript>
-          {/* Static fallback: next/image optimization does not run without
-              JavaScript, and images are unoptimized in this export config. */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="assets/frames-desktop/frame_001.webp"
-            alt="Portrait of Nayeemur Rahman"
-            className="absolute inset-0 size-full object-cover"
-          />
-        </noscript>
       </div>
     </section>
   );
