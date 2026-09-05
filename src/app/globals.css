@@ -64,10 +64,12 @@ header.bg-transparent :focus-visible { outline-color: var(--color-delivered-brig
 .portrait-canvas { opacity: 0; }
 .portrait-shade { background: linear-gradient(180deg, rgb(11 14 17 / .72), rgb(11 14 17 / .15) 30%, rgb(11 14 17 / .92) 70%, var(--color-term)); }
 .portrait-content { position: relative; max-width: 1152px; margin-inline: auto; min-height: calc(100svh - 64px); padding: 2rem 1.5rem; display: flex; flex-direction: column; justify-content: space-between; gap: 12rem; }
-.portrait-presence { font-size: .875rem; line-height: 1.6; }
+/* Matte caption fields guarantee contrast even over the lightest frame.
+   At .88 opacity, bright green is at least 7.09:1 over a white photo pixel. */
+.portrait-presence { align-self: flex-start; padding: .5rem .75rem; margin-inline: -.75rem; background: rgb(11 14 17 / .88); font-size: .875rem; line-height: 1.6; }
 .portrait-presence p:first-child { color: var(--color-delivered-bright); }
 .portrait-presence p + p { margin-top: .25rem; }
-.portrait-copy { max-width: 46rem; }
+.portrait-copy { max-width: 46rem; padding: 1.25rem; margin-inline: -1.25rem; background: rgb(11 14 17 / .88); }
 .portrait-copy h1 { max-width: 16ch; font: 700 clamp(2.5rem, 5.5vw, 4.5rem)/1.05 var(--font-display); letter-spacing: -.03em; text-wrap: balance; }
 .portrait-copy h1 span { color: var(--color-delivered-bright); }
 .portrait-bio { max-width: 49ch; margin-top: 1.5rem; font-size: 1rem; line-height: 1.65; }

@@ -35,7 +35,7 @@ try {
     await expect(page.locator(".portrait-cover")).not.toHaveAttribute("data-animated", "true");
     const sizes = await page.locator(".compose-form input, .compose-form select, .compose-form textarea").evaluateAll(elements => elements.map(el => ({ height: el.getBoundingClientRect().height, font: parseFloat(getComputedStyle(el).fontSize) })));
     assert(sizes.every(size => size.height >= 44 && size.font >= 16), `Small form controls at ${width}px`);
-    if (width === 390 || width === 1440) await page.screenshot({ path: `browser-evidence/hero-${width}.png` });
+    await page.screenshot({ path: `browser-evidence/hero-${width}.png` });
     await page.locator(".compose-prepare").click();
     assert(await page.locator(".compose-form input:invalid").count(), "Empty name was accepted");
     await page.getByRole("textbox", { name: "Your name", exact: true }).fill("Dana & 李");
@@ -44,7 +44,10 @@ try {
     await expect(page.getByText("Email prepared, not sent.", { exact: true })).toBeVisible();
     const href = await page.getByRole("link", { name: "Open email app", exact: true }).getAttribute("href");
     assert(new URLSearchParams(href.split("?")[1]).get("subject").includes("Dana & 李"), "Mailto encoding lost content");
-    await page.getByRole("link", { name: "Open email app", exact: true }).focus();
+    // Actual keyboard input is essential: pointer-initiated .focus() need not
+    // match :focus-visible and cannot test the keyboard user's experience.
+    await page.keyboard.press("Tab");
+    await expect(page.getByRole("link", { name: "Open email app", exact: true })).toBeFocused();
     const focus = await page.getByRole("link", { name: "Open email app", exact: true }).evaluate(el => ({ style: getComputedStyle(el).outlineStyle, width: parseFloat(getComputedStyle(el).outlineWidth) }));
     assert(focus.style !== "none" && focus.width >= 2, "Missing keyboard focus ring");
     if (width === 390 || width === 1440) {
