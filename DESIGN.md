@@ -1,70 +1,57 @@
-# DESIGN.md - the "Delivered" world
+# DESIGN.md: the Delivered world
 
-Replacement visual world. The old look (generic dark-SaaS blue gradient on near-black) is evidence and anti-reference, not a base.
+The site is a personal client-acquisition portfolio, not a fictional agency. Its subject is email deliverability: real portrait, postmaster proof, DNS records and an email compose surface. The older generic dark-SaaS blue-gradient look remains an anti-reference.
 
-## Concept
-The site behaves like **a message that lands**. Email infrastructure is the aesthetic: inbox rows, DNS records, postmaster reports, status checks. Editorial-technical: it reads like a beautifully typeset deliverability dossier, not a marketing template.
+## Current revision: 6 September 2026
+This is a refinement of Delivered, not the Liquid Portfolio concept. The real portrait leads, while the interface no longer waits for canvas or JavaScript to reveal content. See `docs/audits/2026-09-06-portfolio.md` and the implementation plan for evidence and scope.
 
-## Palette (tokens)
-Light "paper inbox" base with dark "terminal" contrast sections.
+## Palette
+| Token | Value | Role |
+| --- | --- | --- |
+| paper | #FAFAF7 | reading background |
+| paper-subtle | #F2F1EC | subtle light surface |
+| ink | #101418 | primary light-surface text |
+| muted | #5B6470 | secondary light-surface text |
+| line | #E3E1DA | light boundaries |
+| card | #FFFFFF | existing raised surfaces |
+| term | #0B0E11 | portrait, compose and report ground |
+| term-surface | #13171D | inputs and secondary dark surfaces |
+| term-ink | #E8EDF2 | dark-surface text |
+| term-muted | #828D99 | dark-surface metadata and input boundaries |
+| term-line | #1F252B | dark dividers |
+| delivered | #1FA55A | existing action/success accent |
+| delivered-ink | #187F46 | green text on paper |
+| delivered-bright | #34D07C | dark-surface accent and revised primary controls |
+| warm | #E8A13C | diagnostic attention only |
+| spam | #E0533D | diagnostic failure only |
 
-| Token | Value | Use |
-|---|---|---|
-| paper | #FAFAF7 | page background |
-| ink | #101418 | primary text |
-| muted | #5B6470 | secondary text |
-| line | #E3E1DA | hairline borders (prefer 1px lines over shadows) |
-| card | #FFFFFF | raised surfaces |
-| term | #0B0E11 | terminal section background |
-| term-ink | #E8EDF2 | terminal section text |
-| term-line | #1F252B | borders on dark |
-| delivered | #1FA55A | accent: success, CTAs, checkmarks (on light) |
-| delivered-ink | #187F46 | green at text sizes on paper (contrast safe) |
-| delivered-bright | #34D07C | accent on dark |
-| warm | #E8A13C | warmup/attention accents, sparing |
-| spam | #E0533D | failure states inside diagnostic motifs only |
+Green means action or delivered state; it is not an invented KPI. Amber/red stay in real diagnostic motifs. No new brand colors were introduced. Portrait caption fields use terminal at 88% opacity to protect contrast across the rotating photographs; they have no blur, halo or decorative glass treatment.
 
-Rules: one accent per view. Green means delivered/go. Amber and red exist only inside diagnostic motifs (spam-vs-inbox diagrams), never as decoration.
+## Typography
+Fonts remain self-hosted: Bricolage Grotesque Variable for display, Inter Variable for body/UI, JetBrains Mono Variable for data. No runtime Google Fonts request.
 
-## Type
-- Display: **Bricolage Grotesque** 600-800, tight leading, H1-H2 only.
-- Body/UI: **Inter** 400/500/600.
-- Data: **JetBrains Mono** for eyebrows, stats, labels, DNS records, timestamps.
-- Scale (px, clamped): 12 / 14 / 16 / 18 / 24 / 32 / 48 / 72. Body 16 at 1.65 line height. Hero clamp(40px, 7vw, 72px).
-- Mono eyebrow pattern for section labels: `MX-01 // DELIVERABILITY`.
+Current hero: 40px to 72px via `clamp(2.5rem, 5.5vw, 4.5rem)`, weight 700, line height 1.05, tracking -0.03em, balanced and capped at 16ch. Body 16px at 1.65. Hero actions 15px/600. Presence and form labels 14px; revised inputs 16px to avoid mobile focus zoom. Contact heading 32px to 48px, weight 600, line height 1.12 and -0.025em tracking. Older sections retain their existing data labels and mono motifs; this refinement does not claim a full typography migration.
 
-## Signature motifs
+## Signature and hierarchy
+1. Real black-and-white portrait cover: real responsive image first, optional 180-frame scroll sequence second. Copy stays in document flow on matte caption fields. The unnecessary rotation dial, frame counter and loader status no longer compete with hiring.
+2. Postmaster strip directly after the hero: verified profile figures remain in the data layer and were not changed.
+3. DNS diagnostic record table: existing meaningful technical evidence, not decoration posing as evidence.
+4. Compose contact surface: persistent field labels, explicit preparation, user-activated email-app link and manual-copy alternative. It never claims to send or to detect an external mail client's launch.
 
-> 2026-09 revision: the home hero is now the **scroll portrait cover** (a
-> 180-frame black-and-white portrait that rotates 220° across one viewport
-> of scroll), followed immediately by the proof as a **postmaster strip**.
-> The earlier inbox-row hero was retired with the template it came from;
-> motifs 3 and 4 below are unchanged and ship as the DNS diagnostic table
-> and the compose-window contact block.
+## Layout and components
+Container: 1152px outer maximum, 24px inline gutters in the revised hero/contact sections. Contact spacing grows from 64px to 96px; at 1024px it uses a 5/6 asymmetric split and 80px gap. Name/company fields split at 600px. Groups use 8/12/16/24px spacing. Hero caption padding 20px, presence padding 8px/12px.
 
-1. ~~**Inbox hero:**~~ superseded by the scroll portrait cover (see note).
-2. **Postmaster strip:** proof stats rendered as a monospace report: `JSS 100% / RATING 5.0 / JOBS 7 OF 8`, straight under the hero, each figure visible on the Upwork profile.
-3. **DNS record table:** skills and tools rendered as record rows: `TYPE / NAME / VALUE / check`.
-4. **Compose CTA:** the contact block is styled as a compose window (To: Nayeemur Rahman) with a Delivered-green Send button.
+Compose radius 14px, input radius 8px, revised buttons 12px. Form inputs/actions are at least 48px tall; header controls are at least 44px. Header's dark state has an opaque terminal ground, not light text depending on the page behind it. Visible focus rings use green-ink on paper and bright-green on terminal. Selection, caret, underline offset and scrollbars are themed.
 
-## Space, layout, radius
-- Container 1120px. Section padding 96px desktop / 64px mobile. 8pt spacing grid.
-- Cards radius 12px, pills 999px. Borders over shadows; at most one soft shadow level.
-- Terminal sections bleed full width; content stays in the container.
-- Asymmetric editorial layouts allowed; never center-everything template rhythm.
+## Motion and fallback contract
+At >=768px width and >=760px height, without reduced motion or a light/data-saver connection, the 180 frames map to a 220svh scene. The stage sticks below the 64px header. Narrow/short viewports, reduced motion, data saver and missing canvas use a static portrait with natural content height. A services link bypasses the cover.
 
-## Motion
-- 150-250ms, ease-out, translateY 8-12px plus fade. Stagger 60ms. SVG check draw-in 300ms.
-- No parallax, no scroll-jacking, no infinite loops except one slow pausable tool marquee.
-- prefers-reduced-motion: opacity-only transitions, static marquee.
+One pending image, a 20-frame decoded cache, device-pixel ratio capped at 1.5, no whole-sequence background warming and no per-scroll React HUD updates. Scroll work is requestAnimationFrame-coalesced; offscreen/hidden-tab updates are skipped. Live motion preference changes return to the static image. Detached image handlers cannot update an unmounted component; already-issued network requests are not claimed to be aborted.
 
-## Imagery
-No stock photos, no 3D blobs, no fake client logos. Real artifacts only: anonymized campaign screenshots, terminal-styled diagrams, OG images generated from the token system.
+Reading content is visible before JS. Existing reveal wrappers remain compatible but do not hide content. Small legacy dot/blink animations finish after three cycles and are disabled for reduced motion. Control feedback remains 180ms color/background changes; no universal 0.01ms transition kill-switch.
 
-## Accessibility floor
-- Contrast at least 4.5:1 body, 3:1 large text. Use delivered-ink #187F46 for green at text sizes on paper.
-- Focus rings: 2px delivered, 2px offset, visible on every interactive element.
-- Hit targets at least 44px. Semantic landmarks, skip link, alt text on artifacts.
+## Content and imagery boundaries
+No stock photos, fake client logos, invented clients or invented metrics. Use the existing real portrait and verified data. No files in .agent/ or .claude/ were changed. The separate Liquid Portfolio illustrative concepts are not proof of client work and were not imported.
 
-## Anti-reference (never ship)
-Dark-blue SaaS gradient hero, glassmorphism, purple-teal AI palette, invented KPI cards, fake logo strips, emoji bullets in UI copy, centered-everything rhythm.
+## Verification boundary
+Tests, lint, TypeScript, static build and real exported-site Chromium checks are required before merge. Screenshot evidence is stored by CI; physical iOS Safari/Android and sustained GPU performance remain unmeasured. This record describes the implementation, not a promise of universal device performance or whole-site WCAG certification.
