@@ -32,6 +32,16 @@ const BANNED_PATTERNS: Array<[RegExp, string]> = [
   [/\brockstar\b/i, "banned voice"],
   [/\bguru\b/i, "banned voice"],
   [/passionate/i, "banned voice"],
+  // Invented outcome metrics removed from the case files: these read like
+  // dashboard numbers but were never backed by a screenshot or export.
+  [/zero burn/i, "unverifiable invented metric"],
+  [/primary\s*100/i, "unverifiable invented metric"],
+  [/95\s*[\u2013-]\s*100\s*%/i, "unverifiable invented metric"],
+  [/inbox health/i, "unverifiable invented metric"],
+  // Distorted counts. The profile says 7 of 8 jobs completed, 3 in progress.
+  [/7\s*\/\s*7/i, "distorted job count (profile says 7 of 8)"],
+  // "Top Rated" is an Upwork badge this profile has not been shown to carry.
+  [/top rated/i, "unverified badge claim"],
   [/\u2014/, "em dash (PRODUCT.md voice rule)"],
 ];
 

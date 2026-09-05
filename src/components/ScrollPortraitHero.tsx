@@ -220,9 +220,29 @@ export function ScrollPortraitHero() {
       preloadAround(targetFrame);
     }
 
+    /**
+     * The connection object is non-standard, so it is probed defensively.
+     * Users with Data Saver on (or on 2G) skip the full-sequence background
+     * warm: frames still load on demand as they scroll.
+     */
+    function connectionPrefersLight(): boolean {
+      const nav = navigator as Navigator & {
+        connection?: { saveData?: boolean; effectiveType?: string };
+      };
+      const conn = nav.connection;
+      if (!conn) return false;
+      return Boolean(conn.saveData) || /^(slow-)?2g$/.test(conn.effectiveType ?? "");
+    }
+
     async function warmCompressedCache() {
       if (warmingStarted || reducedMotion.matches) return;
       warmingStarted = true;
+
+      if (connectionPrefersLight()) {
+        setLoadStatusText("Data saver: streaming only");
+        setTimeout(() => setStatusComplete(true), 600);
+        return;
+      }
 
       let cursor = 0;
       const workers = Math.min(4, navigator.hardwareConcurrency || 4);
@@ -314,27 +334,26 @@ export function ScrollPortraitHero() {
     <section
       ref={sceneRef}
       id="portrait-hero"
-      aria-label="Interactive 220-degree portrait scroll sequence"
-      className="relative h-[480vh] w-full bg-term text-term-ink"
+      aria-label="Portrait of Nayeemur Rahman, rotating through 220 degrees as you scroll"
+      className="relative h-[300vh] w-full bg-term text-term-ink"
     >
-      {/* Sticky Stage Container */}
-      <div className="sticky top-0 h-screen h-[100svh] w-full overflow-hidden bg-term isolation-auto">
-        
-        {/* Full-screen Canvas */}
+      {/* Sticky stage */}
+      <div className="sticky top-0 h-[100svh] w-full overflow-hidden bg-term">
+        {/* Full-bleed canvas */}
         <canvas
           ref={canvasRef}
           role="img"
-          aria-label="Portrait of Nayeemur Rahman changing angle as you scroll"
-          className="block size-full bg-black object-cover"
+          aria-label="Black and white portrait of Nayeemur Rahman facing the camera, rotating from profile view to frontal view as the page scrolls"
+          className="block size-full bg-black"
         />
 
-        {/* Subtle Vignette & Dark Gradient Overlays */}
+        {/* Vignette + legibility gradients */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-1 bg-gradient-to-b from-black/50 via-transparent to-black/70 md:bg-[radial-gradient(ellipse_at_center,transparent_35%,rgba(0,0,0,0.65)_100%)]"
+          className="pointer-events-none absolute inset-0 z-1 bg-gradient-to-b from-black/50 via-transparent to-black/80 md:bg-[radial-gradient(ellipse_at_center,transparent_35%,rgba(0,0,0,0.65)_100%)]"
         />
 
-        {/* Loading Overlay */}
+        {/* Loading overlay */}
         {!isReady && (
           <div
             role="status"
@@ -342,8 +361,8 @@ export function ScrollPortraitHero() {
             className="absolute inset-0 z-20 grid place-items-center bg-black/95 p-4 transition-opacity duration-300"
           >
             <div className="w-64 text-center font-mono">
-              <p className="text-xs tracking-widest text-term-muted uppercase">
-                Calibrating Portrait Sequence
+              <p className="text-xs uppercase tracking-widest text-term-muted">
+                Preparing portrait sequence
               </p>
               <div className="mt-3 h-1 w-full overflow-hidden rounded-full bg-term-line">
                 <div
@@ -355,29 +374,24 @@ export function ScrollPortraitHero() {
           </div>
         )}
 
-        {/* HUD Interactive Overlay Layer */}
-        <div className="pointer-events-none absolute inset-0 z-10 flex flex-col justify-between p-4 pt-20 sm:p-8 sm:pt-24 md:p-12 md:pt-28">
-          
-          {/* Top Bar HUD */}
+        {/* HUD overlay */}
+        <div className="pointer-events-none absolute inset-0 z-10 flex flex-col justify-between p-4 pt-24 sm:p-8 sm:pt-28 md:p-12 md:pt-32">
+          {/* Top bar */}
           <div className="flex items-start justify-between gap-4">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <span className="font-mono text-xs font-bold text-delivered-bright tracking-widest uppercase">
-                  NR // DELIVERABILITY SYSTEM
-                </span>
-                <span className="rounded bg-delivered/15 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-delivered-bright">
-                  220° SCROLL
-                </span>
-              </div>
-              <p className="font-mono text-[11px] text-term-muted">
-                {site.role} • {site.location}
+            <div className="space-y-1.5 font-mono">
+              <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-delivered-bright">
+                <span className="size-1.5 rounded-full bg-delivered-bright animate-pulse-dot" />
+                {site.availability}
+              </p>
+              <p className="text-[11px] uppercase tracking-[0.16em] text-term-muted">
+                {site.location} · {site.timezone}
               </p>
             </div>
 
             <div className="text-right">
-              <div className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-term-line bg-term-surface/80 px-3 py-1 font-mono text-[11px] text-term-ink">
+              <div className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-term-line bg-term/80 px-3 py-1 font-mono text-[11px] text-term-ink backdrop-blur-sm">
                 <ShieldCheck className="size-3.5 text-delivered-bright" />
-                <span>100% JSS • TOP RATED</span>
+                <span>JSS {site.stats.jss} · {site.stats.rating} ★ · ID VERIFIED</span>
               </div>
               <p
                 className={`mt-1 font-mono text-[10px] text-term-muted transition-opacity duration-300 ${
@@ -389,80 +403,80 @@ export function ScrollPortraitHero() {
             </div>
           </div>
 
-          {/* Center / Lower Left Copy & Primary CTAs */}
-          <div className="pointer-events-auto max-w-xl space-y-4">
-            <h1 className="font-display text-3xl font-extrabold tracking-tight text-white sm:text-4xl md:text-5xl lg:leading-[1.1]">
-              Cold email that lands in the{" "}
-              <span className="text-delivered-bright">primary inbox</span>, not spam.
-            </h1>
+          {/* Copy + dial */}
+          <div className="flex items-end justify-between gap-6">
+            <div className="pointer-events-auto max-w-xl space-y-4">
+              <h1 className="font-display text-3xl font-extrabold tracking-tight text-white sm:text-4xl md:text-5xl lg:leading-[1.1]">
+                Cold email that lands in the{" "}
+                <span className="text-delivered-bright">primary inbox</span>, not
+                spam.
+              </h1>
 
-            <p className="text-sm sm:text-base leading-relaxed text-term-muted max-w-lg">
-              {site.bio}
-            </p>
+              <p className="max-w-lg text-sm leading-relaxed text-term-muted sm:text-base">
+                {site.bio}
+              </p>
 
-            <div className="flex flex-wrap items-center gap-3 pt-2">
-              <Link
-                href="/contact"
-                className="inline-flex items-center gap-2 rounded-xl bg-delivered px-5 py-2.5 font-mono text-xs font-semibold text-term shadow-md transition-all hover:bg-delivered-bright active:scale-95"
-              >
-                <Mail className="size-4" />
-                Fix My Deliverability
-                <ArrowRight className="size-3.5" />
-              </Link>
+              <div className="flex flex-wrap items-center gap-3 pt-2">
+                <Link
+                  href="/contact"
+                  className="inline-flex items-center gap-2 rounded-xl bg-delivered px-5 py-2.5 font-mono text-xs font-semibold text-term shadow-md transition-all hover:bg-delivered-bright active:scale-95"
+                >
+                  <Mail className="size-4" />
+                  Fix my deliverability
+                  <ArrowRight className="size-3.5" />
+                </Link>
 
-              <a
-                href={links.upwork}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-xl border border-term-line bg-term-surface/90 px-4 py-2.5 font-mono text-xs font-medium text-term-ink transition-colors hover:border-term-muted hover:bg-term active:scale-95"
-              >
-                <ShieldCheck className="size-4 text-delivered-bright" />
-                Upwork Profile
-              </a>
+                <a
+                  href={links.upwork}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-xl border border-term-line bg-term/90 px-4 py-2.5 font-mono text-xs font-medium text-term-ink backdrop-blur-sm transition-colors hover:border-term-muted hover:bg-term active:scale-95"
+                >
+                  <ShieldCheck className="size-4 text-delivered-bright" />
+                  Upwork profile
+                </a>
+              </div>
+
+              <p className="flex items-center gap-2 pt-1 font-mono text-[11px] text-term-muted">
+                <ArrowDown className="size-3.5 animate-bounce text-delivered-bright" />
+                <span>Keep scrolling: the portrait rotates with you</span>
+              </p>
             </div>
 
-            <div className="flex items-center gap-2 pt-2 text-[11px] font-mono text-term-muted">
-              <ArrowDown className="size-3.5 animate-bounce text-delivered-bright" />
-              <span>Scroll down to rotate perspective ({angle}° / {MAX_ANGLE}°)</span>
-            </div>
-          </div>
-
-          {/* Bottom Right Dial & Progress Meter */}
-          <div className="flex items-end justify-between border-t border-term-line/60 pt-4">
-            <div className="font-mono text-[11px] text-term-muted">
-              <span>{site.stats.rating} ★ Rating</span>
-              <span className="mx-2">•</span>
-              <span>7/7 Projects Delivered</span>
-            </div>
-
-            <div className="flex items-center gap-3 font-mono">
+            {/* Rotation dial (decorative; the canvas carries the description) */}
+            <div
+              aria-hidden="true"
+              className="hidden shrink-0 items-center gap-3 font-mono sm:flex"
+            >
               <div className="text-right">
                 <span className="block text-sm font-bold text-delivered-bright tabular-nums">
                   {angle}°
                 </span>
                 <span className="block text-[10px] text-term-muted tabular-nums">
-                  {pad(currentFrame)} / {FRAME_COUNT}
+                  of {MAX_ANGLE}° · {pad(currentFrame)}/{FRAME_COUNT}
                 </span>
               </div>
 
-              {/* Vertical Fill Meter */}
               <div className="relative h-10 w-1.5 overflow-hidden rounded-full bg-term-line">
                 <div
-                  className="w-full bg-delivered-bright transition-transform duration-75 origin-top"
+                  className="w-full origin-top bg-delivered-bright transition-transform duration-75"
                   style={{ transform: `scaleY(${scrollProgress})` }}
                 />
               </div>
             </div>
           </div>
-
         </div>
 
-        {/* Noscript static fallback */}
+        {/* Static fallback without JavaScript. Relative path works at both
+            site roots ("/" and the GitHub Pages basePath). */}
         <noscript>
+          {/* Static fallback: next/image optimization does not run without
+              JavaScript, and images are unoptimized in this export config. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/assets/frames-desktop/frame_001.webp"
+            src="assets/frames-desktop/frame_001.webp"
             alt="Portrait of Nayeemur Rahman"
-            className="size-full object-cover"
+            className="absolute inset-0 size-full object-cover"
           />
         </noscript>
       </div>

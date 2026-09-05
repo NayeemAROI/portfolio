@@ -1,8 +1,15 @@
 import type { Metadata } from "next";
-import { display, sans, mono } from "@/lib/fonts";
 import { site } from "@/data/site";
+import { links } from "@/data/links";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
+// Self-hosted fonts (fontsource). No build-time or runtime Google Fonts
+// dependency: `next/font/google` fetches from fonts.googleapis.com during
+// build, which breaks airgapped/CI environments and adds a third-party
+// request on every page load.
+import "@fontsource-variable/bricolage-grotesque";
+import "@fontsource-variable/inter";
+import "@fontsource-variable/jetbrains-mono";
 import "./globals.css";
 
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
@@ -26,7 +33,7 @@ export const metadata: Metadata = {
     "Nayeemur Rahman",
     "NayeemAROI",
   ],
-  authors: [{ name: site.name, url: "https://github.com/NayeemAROI" }],
+  authors: [{ name: site.name, url: links.github }],
   openGraph: {
     title: `${site.name} · ${site.role}`,
     description: site.headline,
@@ -35,10 +42,28 @@ export const metadata: Metadata = {
     siteName: site.name,
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: `${site.name} · ${site.role}`,
     description: site.headline,
   },
+};
+
+const personJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: site.name,
+  jobTitle: site.role,
+  email: `mailto:${links.email}`,
+  description: site.bio,
+  knowsAbout: [
+    "Email deliverability",
+    "SPF, DKIM and DMARC authentication",
+    "Cold email infrastructure",
+    "Google Workspace",
+    "Microsoft 365",
+    "WordPress",
+  ],
+  sameAs: [links.github, links.linkedin, links.upwork],
 };
 
 export default function RootLayout({
@@ -47,10 +72,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html
-      lang="en"
-      className={`${display.variable} ${sans.variable} ${mono.variable} scroll-smooth`}
-    >
+    <html lang="en" className="scroll-smooth">
       <body className="flex min-h-screen flex-col bg-paper text-ink antialiased">
         <a
           href="#main"
@@ -63,6 +85,10 @@ export default function RootLayout({
           {children}
         </main>
         <SiteFooter />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
+        />
       </body>
     </html>
   );

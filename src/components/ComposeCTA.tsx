@@ -45,7 +45,8 @@ export function ComposeCTA() {
         <div className="grid items-start gap-10 lg:grid-cols-2">
           <Reveal>
             <p className="font-mono text-xs uppercase tracking-[0.22em] text-delivered-ink">
-              Contact
+              <span className="text-muted">MSG-07 // </span>
+              New message
             </p>
             <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight md:text-4xl">
               Ready when you are.

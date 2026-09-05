@@ -33,6 +33,7 @@ export function ServicesSection() {
   return (
     <Section
       id="services"
+      code="SVC-02"
       eyebrow="Services"
       title="Five pillars. One outcome: delivered."
       intro="Everything below is production work I do every week, not a menu of maybes. Each pillar has its own playbook."

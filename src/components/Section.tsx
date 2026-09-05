@@ -3,6 +3,8 @@ import { Reveal } from "@/components/Reveal";
 
 type SectionProps = {
   id?: string;
+  /** Mono section code, rendered as `CODE // Eyebrow` per DESIGN.md. */
+  code?: string;
   eyebrow: string;
   title: string;
   intro?: string;
@@ -12,6 +14,7 @@ type SectionProps = {
 
 export function Section({
   id,
+  code,
   eyebrow,
   title,
   intro,
@@ -28,6 +31,7 @@ export function Section({
       <div className="mx-auto w-full max-w-6xl px-4 py-14 sm:px-6 md:py-20">
         <Reveal className="mx-auto max-w-2xl text-center">
           <p className="font-mono text-xs uppercase tracking-[0.22em] text-delivered-ink">
+            {code ? <span className="text-muted">{`${code} // `}</span> : null}
             {eyebrow}
           </p>
           <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight md:text-4xl">
