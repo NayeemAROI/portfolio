@@ -1,176 +1,100 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
-import { Clock, MapPin, Send, ShieldCheck } from "lucide-react";
+import { useId, useRef, useState, type FormEvent } from "react";
+import { ArrowUpRight, Clock, MapPin, ShieldCheck } from "lucide-react";
 import { site } from "@/data/site";
 import { links } from "@/data/links";
 import { CopyEmail } from "@/components/CopyEmail";
-import { Reveal } from "@/components/Reveal";
 
-const topics = [
-  "Deliverability rescue",
-  "Cold email infrastructure",
-  "Google Workspace / M365",
-  "B2B lead generation",
-  "WordPress support",
-  "Something else",
-] as const;
+const topics = ["Deliverability rescue", "Cold email infrastructure", "Google Workspace / M365", "B2B lead generation", "WordPress support", "Something else"] as const;
+
+type MessageInput = { email: string; name: string; company: string; topic: string; message: string };
+// Reuses the encoded mailto contract reviewed in PR #11, without app-detection timers.
+export function buildMailto(input: MessageInput): string {
+  const subject = `${input.topic}: ${input.name}`;
+  const body = [input.message, "", `Name: ${input.name}`, `Company: ${input.company || "-"}`, `Topic: ${input.topic}`].join("\n");
+  return `mailto:${input.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
 
 export function ComposeCTA() {
+  const id = useId();
+  const resultRef = useRef<HTMLDivElement>(null);
   const [name, setName] = useState("");
   const [company, setCompany] = useState("");
   const [topic, setTopic] = useState<string>(topics[0]);
   const [message, setMessage] = useState("");
-  const [drafted, setDrafted] = useState(false);
+  const [draft, setDraft] = useState<{ href: string; text: string } | null>(null);
+  const [feedback, setFeedback] = useState("");
 
-  const handleSend = (event: FormEvent<HTMLFormElement>) => {
+  function handlePrepare(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const subject = `${topic}: ${name || "new project"}`;
-    const bodyLines = [
-      message || "Hi Nayeemur,",
-      "",
-      `Name: ${name || "-"}`,
-      `Company: ${company || "-"}`,
-      `Topic: ${topic}`,
-    ];
-    window.location.href = `mailto:${links.email}?subject=${encodeURIComponent(
-      subject,
-    )}&body=${encodeURIComponent(bodyLines.join("\n"))}`;
-    setDrafted(true);
-  };
+    if (!name.trim() || message.trim().length < 20) {
+      setFeedback("Add your name and a message of at least 20 characters.");
+      event.currentTarget.querySelector<HTMLElement>(!name.trim() ? "input" : "textarea")?.focus();
+      return;
+    }
+    const input = { email: links.email, name: name.trim(), company: company.trim(), topic, message: message.trim() };
+    setDraft({ href: buildMailto(input), text: [`To: ${input.email}`, `Subject: ${input.topic}: ${input.name}`, "", input.message, "", `Name: ${input.name}`, `Company: ${input.company || "-"}`, `Topic: ${input.topic}`].join("\n") });
+    setFeedback("");
+  }
+
+  async function copyMessage() {
+    if (!draft) return;
+    try {
+      if (!navigator.clipboard) throw new Error("Clipboard unavailable");
+      await navigator.clipboard.writeText(draft.text);
+      setFeedback("Message copied. Paste it into your email app to send.");
+    } catch {
+      setFeedback("Select the message below and copy it manually.");
+      const text = resultRef.current?.querySelector("textarea");
+      text?.focus();
+      text?.select();
+    }
+  }
 
   return (
-    <section id="contact" className="paper-halo border-t border-line bg-paper">
-      <div className="mx-auto w-full max-w-6xl px-4 py-14 sm:px-6 md:py-20">
-        <div className="grid items-start gap-10 lg:grid-cols-2">
-          <Reveal>
-            <p className="font-mono text-xs uppercase tracking-[0.22em] text-delivered-ink">
-              <span className="text-muted">MSG-07 // </span>
-              New message
-            </p>
-            <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight md:text-4xl">
-              Ready when you are.
-            </h2>
-            <p className="mt-4 max-w-md text-muted">
-              Describe the symptom: open rates tanking, mail landing in spam, a
-              migration on the horizon. You get a plain-language diagnosis and a
-              plan, not jargon.
-            </p>
-
-            <ul className="mt-8 space-y-3 text-sm">
-              <li className="flex items-center gap-3">
-                <Clock className="size-4 text-delivered" />
-                {site.availability}
-              </li>
-              <li className="flex items-center gap-3">
-                <MapPin className="size-4 text-delivered" />
-                {site.location} · {site.timezone}
-              </li>
-              <li className="flex items-center gap-3">
-                <ShieldCheck className="size-4 text-delivered" />
-                {site.stats.jss} Job Success · ID verified on Upwork
-              </li>
-            </ul>
-
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <CopyEmail />
-              <a
-                href={links.upwork}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-lg bg-ink px-3.5 py-2 text-sm font-medium text-paper transition-colors hover:bg-delivered hover:text-term"
-              >
-                Hire on Upwork
-              </a>
-            </div>
-          </Reveal>
-
-          <Reveal delay={120}>
-            <form
-              onSubmit={handleSend}
-              className="overflow-hidden rounded-2xl border border-term-line bg-term text-term-ink shadow-term"
-            >
-              <div className="flex items-center gap-3 border-b border-term-line px-4 py-3">
-                <span className="flex gap-1.5">
-                  <span className="size-2.5 rounded-full bg-spam/70" />
-                  <span className="size-2.5 rounded-full bg-warm/70" />
-                  <span className="size-2.5 rounded-full bg-delivered/70" />
-                </span>
-                <span className="font-mono text-xs text-term-muted">New message</span>
-              </div>
-
-              <div className="space-y-3 px-4 py-4 sm:px-5">
-                <div className="flex items-center gap-2 border-b border-term-line pb-2.5">
-                  <span className="w-14 shrink-0 font-mono text-xs text-term-muted">To</span>
-                  <span className="rounded-md bg-delivered/15 px-2 py-0.5 font-mono text-xs text-delivered-bright">
-                    {links.email}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-2 border-b border-term-line pb-2.5">
-                  <label htmlFor="cta-topic" className="w-14 shrink-0 font-mono text-xs text-term-muted">
-                    Subject
-                  </label>
-                  <select
-                    id="cta-topic"
-                    value={topic}
-                    onChange={(e) => setTopic(e.target.value)}
-                    className="w-full bg-transparent text-sm text-term-ink outline-none [&>option]:bg-term"
-                  >
-                    {topics.map((t) => (
-                      <option key={t} value={t}>
-                        {t}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Your name"
-                    aria-label="Your name"
-                    className="rounded-lg border border-term-line bg-term-surface px-3 py-2.5 text-sm text-term-ink placeholder:text-term-muted focus:border-delivered focus:outline-none"
-                  />
-                  <input
-                    type="text"
-                    value={company}
-                    onChange={(e) => setCompany(e.target.value)}
-                    placeholder="Company (optional)"
-                    aria-label="Company"
-                    className="rounded-lg border border-term-line bg-term-surface px-3 py-2.5 text-sm text-term-ink placeholder:text-term-muted focus:border-delivered focus:outline-none"
-                  />
-                </div>
-
-                <textarea
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  placeholder="What's going on with your email? Domains, volume, tools, symptoms"
-                  aria-label="Message"
-                  rows={5}
-                  className="w-full resize-none rounded-lg border border-term-line bg-term-surface px-3 py-2.5 text-sm text-term-ink placeholder:text-term-muted focus:border-delivered focus:outline-none"
-                />
-              </div>
-
-              <div className="flex flex-wrap items-center justify-between gap-3 border-t border-term-line px-4 py-3.5 sm:px-5">
-                <button
-                  type="submit"
-                  className="inline-flex items-center gap-2 rounded-xl bg-delivered px-5 py-2.5 font-semibold text-term transition-all hover:-translate-y-0.5 hover:bg-delivered-bright"
-                >
-                  <Send className="size-4" />
-                  Send it
-                </button>
-                <span className="font-mono text-[11px] text-term-muted">
-                  {drafted
-                    ? "Draft opened in your email app. Hit send there."
-                    : "Opens your email app. No trackers attached."}
-                </span>
-              </div>
-            </form>
-          </Reveal>
+    <section id="contact" className="compose-section">
+      <div className="compose-layout">
+        <div className="compose-intro">
+          <h2>Ready when you are.</h2>
+          <p>Describe the symptom: open rates tanking, mail landing in spam, a migration on the horizon. You get a plain-language diagnosis and a plan, not jargon.</p>
+          <ul>
+            <li><Clock size={18} aria-hidden="true" />{site.availability}</li>
+            <li><MapPin size={18} aria-hidden="true" />{site.location} · {site.timezone}</li>
+            <li><ShieldCheck size={18} aria-hidden="true" />{site.stats.jss} Job Success · ID verified on Upwork</li>
+          </ul>
+          <div className="compose-alternatives">
+            <CopyEmail />
+            <a href={links.upwork} target="_blank" rel="noopener noreferrer">Hire on Upwork <ArrowUpRight size={16} aria-hidden="true" /></a>
+          </div>
         </div>
+        <form className="compose-form" onSubmit={handlePrepare} onChange={() => { setDraft(null); setFeedback(""); }}>
+          <div className="compose-title">New message</div>
+          <div className="compose-fields">
+            <p className="compose-recipient"><span>To</span><span>{links.email}</span></p>
+            <label htmlFor={`${id}-topic`}>Subject</label>
+            <select id={`${id}-topic`} value={topic} onChange={e => setTopic(e.target.value)}>
+              {topics.map(t => <option key={t}>{t}</option>)}
+            </select>
+            <div className="compose-names">
+              <div><label htmlFor={`${id}-name`}>Your name</label><input id={`${id}-name`} aria-label="Your name" autoComplete="name" value={name} onChange={e => setName(e.target.value)} required maxLength={120} /></div>
+              <div><label htmlFor={`${id}-company`}>Company (optional)</label><input id={`${id}-company`} aria-label="Company" autoComplete="organization" value={company} onChange={e => setCompany(e.target.value)} maxLength={160} /></div>
+            </div>
+            <label htmlFor={`${id}-message`}>What needs fixing?</label>
+            <p id={`${id}-hint`} className="compose-hint">Domains, volume, tools, symptoms. At least 20 characters.</p>
+            <textarea id={`${id}-message`} aria-label="Message" aria-describedby={`${id}-hint`} value={message} onChange={e => setMessage(e.target.value)} required minLength={20} maxLength={2000} rows={5} />
+            <button type="submit" className="compose-prepare">Prepare email <ArrowUpRight size={18} aria-hidden="true" /></button>
+            <p className="compose-hint">Nothing is sent from this website. No trackers attached.</p>
+            <p role="status" className="compose-feedback">{feedback}</p>
+            {draft && <div ref={resultRef} className="compose-result">
+              <p role="status" className="compose-result-title">Email prepared, not sent.</p>
+              <p>Open your email app to review and send, or copy the message into webmail.</p>
+              <div className="compose-result-actions"><a href={draft.href}>Open email app</a><button type="button" onClick={copyMessage}>Copy message</button></div>
+              <label htmlFor={`${id}-prepared`}>Prepared message</label>
+              <textarea id={`${id}-prepared`} readOnly value={draft.text} rows={7} />
+            </div>}
+          </div>
+        </form>
       </div>
     </section>
   );
